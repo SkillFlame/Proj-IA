@@ -1,0 +1,44 @@
+Grelha é sempre 10x10
+Preencher a grelha por barco, ver onde se pode colocar barcos. Contudo peças pode também ser feito (mas há casos exponenciais)
+Procuras sao maneiras de percorrer as arvores de estados e chegar à solucao
+
+Nao ha nada nas posicoes adjacentes a um barco
+Barcos:
+
+UM de 4 unidades      DOIS de 3 unidades       TRÊS de 2 unidades     4 de 1 unidade   água para preencher o vazio
+T  ou L M M R            T ou L M R            T ou L R               C                W
+M                        M                     B
+M                        B
+B
+
+    BimaruState 
+é um estado do problema (id nao interessa)
+podemos adicionar metodos de equals (entre estados), getters, setters etc
+
+
+    Board
+representaçao do tabuleiro
+parse_instance é para criar o tabuleiro : recomenda matriz na memória
+
+
+    Bimaru(Problem)
+    criar um board, dar esse board para criar o BimaruState e esse Bimaru tera esse Board
+- tem de ter um initial senao da problemas = BimaruState(Board)
+- um Board 
+- um id 
+
+actions:
+    nao somos nos que decidimos a açao feita, é a procura que decide
+    reduzir o maximo possivel o num maximo de ações para facilitar a procura
+
+board b
+b.grelha = [[]...[]], linkedlist
+precisa de import copy
+new_b.grelha = copy.deepcopy(b.grelha)
+    
+    alterar a board de acordo com a açao, sempre com deepcopys
+
+
+    Nodes
+têm filhos e pais e states
+ver parents e childs para ver o que a procura esta a fazer e que ações estao a ocorrer
