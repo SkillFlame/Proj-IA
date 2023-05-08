@@ -7,6 +7,7 @@
 # 103590 Tiago Firmino
 
 import sys
+import numpy as np
 from search import (
     Problem,
     Node,
@@ -29,31 +30,55 @@ class BimaruState:
     def __lt__(self, other):
         return self.id < other.id
 
+    def equals(self, other): #added
+        return self.id == other.id
+
+    def get_board(self): #added
+        return self.board
+
     # TODO: outros metodos da classe
 
 
 class Board:
     """Representação interna de um tabuleiro de Bimaru."""
 
-    #def __init__(self, ...):
-    #    self.grelha = ...
+    def __init__(self, board):
+        self.board = board
+        self.size = 10
 
     def get_value(self, row: int, col: int) -> str:
         """Devolve o valor na respetiva posição do tabuleiro."""
-        # TODO
-        pass
+        return self.board[row][col]
 
     def adjacent_vertical_values(self, row: int, col: int) -> (str, str):
         """Devolve os valores imediatamente acima e abaixo,
         respectivamente."""
-        # TODO
-        pass
+        if(row == 0):
+            top = None
+            bottom = self.get_value(row + 1, col)
+        elif(row == self.size - 1):
+            bottom = None
+            top = self.get_value(row - 1, col)
+        else:
+            top = self.get_value(row -1 , col)
+            bottom = self.get_value(row + 1, col)
+        
+        return (top, bottom)
 
     def adjacent_horizontal_values(self, row: int, col: int) -> (str, str):
         """Devolve os valores imediatamente à esquerda e à direita,
         respectivamente."""
-        # TODO
-        pass
+        if(col == 0):
+            left = None
+            right = self.get_value(row, col + 1)
+        elif(col == self.size - 1):
+            right = None
+            left = self.get_value(row, col - 1)
+        else:
+            left = self.get_value(row, col - 1)
+            right = self.get_value(row, col + 1)
+
+        return (left, right)
 
     @staticmethod
     def parse_instance():
@@ -67,17 +92,17 @@ class Board:
             > line = stdin.readline().split()
         """
         # TODO
-        inp_row = input()
+        matrix = np.full((10,10), '.', dtype=str)
+        inp_row = sys.stdin.readline()
         vals_row = [int(x) for x in inp_row.split()[1:]]
-        inp_col = input()
+        inp_col = sys.stdin.readline()
         vals_col = [int(x) for x in inp_col.split()[1:]]        
-        num_hints = int(inp())
-        hints = []
+        num_hints = int(input())
         for i in range(num_hints):
-            hint_str = input()
-            hint = tuple(hint_str.split()[1:])
-            hints.append(hint)
-        pass
+            line = sys.stdin.readline().split()
+            matrix[int(line[1])][int(line[2])] = str(line[3])
+
+        return matrix
 
     # TODO: outros metodos da classe
 
@@ -124,4 +149,8 @@ if __name__ == "__main__":
     # Usar uma técnica de procura para resolver a instância,
     # Retirar a solução a partir do nó resultante,
     # Imprimir para o standard output no formato indicado.
-    pass
+    board = Board.parse_instance()
+    
+    problem = Bimaru(board)
+
+    
