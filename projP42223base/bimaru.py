@@ -42,9 +42,11 @@ class BimaruState:
 class Board:
     """Representação interna de um tabuleiro de Bimaru."""
 
-    def __init__(self, board):
+    def __init__(self, board, row_vals = [], col_vals = []):
         self.board = board
         self.size = 10
+        self.rowvals = row_vals
+        self.colvals = col_vals
 
     def get_value(self, row: int, col: int) -> str:
         """Devolve o valor na respetiva posição do tabuleiro."""
@@ -56,9 +58,11 @@ class Board:
         if(row == 0):
             top = None
             bottom = self.get_value(row + 1, col)
+
         elif(row == self.size - 1):
             bottom = None
             top = self.get_value(row - 1, col)
+
         else:
             top = self.get_value(row -1 , col)
             bottom = self.get_value(row + 1, col)
@@ -71,9 +75,11 @@ class Board:
         if(col == 0):
             left = None
             right = self.get_value(row, col + 1)
+
         elif(col == self.size - 1):
             right = None
             left = self.get_value(row, col - 1)
+
         else:
             left = self.get_value(row, col - 1)
             right = self.get_value(row, col + 1)
@@ -95,29 +101,41 @@ class Board:
         matrix = np.full((10,10), '.', dtype=str)
         inp_row = sys.stdin.readline()
         vals_row = [int(x) for x in inp_row.split()[1:]]
+
         inp_col = sys.stdin.readline()
-        vals_col = [int(x) for x in inp_col.split()[1:]]        
+        vals_col = [int(x) for x in inp_col.split()[1:]]
+
         num_hints = int(input())
         for i in range(num_hints):
             line = sys.stdin.readline().split()
             matrix[int(line[1])][int(line[2])] = str(line[3])
 
-        return matrix
+        # adicionar atributos aqui e possivel board.new_attr = uu
+
+        return Board(matrix, vals_row, vals_col)
+
+    def print_board(self):
+        print(self.board)
+        print(" ")
+        print(self.rowvals, self.colvals)
 
     # TODO: outros metodos da classe
 
 
 class Bimaru(Problem):
-    def __init__(self, board: Board):
+    def __init__(self, board: Board): #,goal):
         """O construtor especifica o estado inicial."""
         # TODO
         #criar um board para criar um state
+        self.initial = BimaruState(board)
+        #self.goal = goal
         pass
 
-    def actions(self, state: BimaruState):
+    def actions(self, state: BimaruState) -> list:
         """Retorna uma lista de ações que podem ser executadas a
         partir do estado passado como argumento."""
         # TODO
+        return ["Water", "Top", "Bottom", "Left", "Right", "Middle", "FillLine", "FillColumn", "Remove", "Something"]
         pass
 
     def result(self, state: BimaruState, action):
@@ -126,13 +144,36 @@ class Bimaru(Problem):
         das presentes na lista obtida pela execução de
         self.actions(state)."""
         # TODO
-        pass
+
+        if(action == "Water"):
+            return state.put_water()
+        elif(action == "Top"):
+            return state.put_top()
+        elif(action == "Bottom"):
+            return state.put_bottom()
+        elif(action == "Left"):
+            return state.put_left()
+        elif(action == "Right"):
+            return state.put_right()
+        elif(action == "Middle"):
+            return state.put_middle()
+        elif(action == "FillLine"):
+            return state.fill_line()
+        elif(action == "FillColumn"):
+            return state.fill_column
+        elif(action == "Remove"):
+            return state.remove()
+        elif(action == "Something"):
+            return state.put_something()
+        else:
+            return NotImplementedError()
 
     def goal_test(self, state: BimaruState):
         """Retorna True se e só se o estado passado como argumento é
         um estado objetivo. Deve verificar se todas as posições do tabuleiro
         estão preenchidas de acordo com as regras do problema."""
         # TODO
+        #return self.goal == state.board
         pass
 
     def h(self, node: Node):
@@ -150,7 +191,16 @@ if __name__ == "__main__":
     # Retirar a solução a partir do nó resultante,
     # Imprimir para o standard output no formato indicado.
     board = Board.parse_instance()
+
+    print(board.adjacent_vertical_values(3, 3))
+    print(board.adjacent_horizontal_values(3, 3))
+    print(board.adjacent_vertical_values(1, 0))
+    print(board.adjacent_horizontal_values(1, 0))
+
+    print(" ")
+
     
     problem = Bimaru(board)
+    board.print_board()
 
     
