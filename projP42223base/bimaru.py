@@ -52,6 +52,9 @@ class Board:
         """Devolve o valor na respetiva posição do tabuleiro."""
         return self.board[row][col]
 
+    def set_value(self, row: int, col: int, value: int):
+        self.board[row][col] = value
+
     def adjacent_vertical_values(self, row: int, col: int) -> (str, str):
         """Devolve os valores imediatamente acima e abaixo,
         respectivamente."""
@@ -122,6 +125,7 @@ class Board:
     # TODO: outros metodos da classe
 
 
+
 class Bimaru(Problem):
     def __init__(self, board: Board): #,goal):
         """O construtor especifica o estado inicial."""
@@ -163,8 +167,8 @@ class Bimaru(Problem):
             return state.fill_column
         elif(action == "Remove"):
             return state.remove()
-        elif(action == "Something"):
-            return state.put_something()
+        elif(action == "Mark"):
+            return state.mark_spot()
         else:
             return NotImplementedError()
 
