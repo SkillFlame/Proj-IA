@@ -68,10 +68,15 @@ class Board:
 			top = self.get_value(row -1 , col)
 			bottom = self.get_value(row + 1, col)
 
-		if top == '.' or top == 'w' or top == 'W' or top == ' ':
+		if top == ' ':
 			top = None
-		if bottom == '.' or bottom == 'w' or bottom == 'W' or bottom == ' ':
+		elif top == '.' or top == 'w' or top == 'W':
+			top = 'w'
+		if bottom == ' ':
 			bottom = None
+		elif bottom == '.' or bottom == 'w' or bottom == 'W':
+			bottom = 'w'
+
 		return (top, bottom)
 
 	def adjacent_horizontal_values(self, row: int, col: int) -> (str, str):
@@ -87,10 +92,14 @@ class Board:
 			left = self.get_value(row, col - 1)
 			right = self.get_value(row, col + 1)
 
-		if left == '.' or left == 'w' or left == 'W' or left == ' ':
+		if left == ' ':
 			left = None
-		if right == '.' or right == 'w' or right == 'W' or right == ' ':
+		elif left == '.' or left == 'w' or left == 'W':
+			left = 'w'
+		if right == ' ':
 			right = None
+		elif right == '.' or right == 'w' or right == 'W':
+			right = 'w' 
 		return (left, right)
 
 
@@ -135,7 +144,7 @@ class Board:
 
 	def fill_the_board(self):
 		self.put_line_waters()
-		self.put_possible_positions()
+		self.put_possible_parts()
 
 	def put_line_waters(self):
 		i = 0
@@ -184,7 +193,58 @@ class Board:
 		np.nonzero(self.board == "T")
 
 
-	def put_possible_positions(self):
+	def put_possible_parts(self):
+		i = 0
+		while i < self.size:
+			j = 0
+			while j < self.size:
+				if self.board[i][j] == 'T':
+					if i == self.size - 2:
+						self.set_value(i + 1, j, 'b')
+					else:
+						self.set_value(i + 1, j, 'X')
+				elif self.board[i][j] == 'M':
+					hor_vals = self.adjacent_horizontal_values(i, j)
+					ver_vals = self.adjacent_vertical_values(i, j)
+					if ver_vals == (None, None):
+						if i == 1:
+							self.set_value(i - 1, j, 't')
+						elif self.get_value(i - 1, j) != 'w':
+							self.set_value(i - 1, j, 'X')
+						if i == self.size - 2:
+							self.set_value(i + 1, j, 'b')
+						elif self.get_value(i + 1, j) != 'w':
+							self.set_value(i + 1, j, 'X')
+			
+					if hor_vals == (None, None):
+						if j == 1:
+							self.set_value(i, j - 1, 'l')
+						elif self.get_value(i, j - 1) != 'w':
+							self.set_value(i, j - 1, 'X')
+						if j == self.size - 2:
+							self.set_value(i, j + 1, 'r')
+						elif self.get_value(i, j + 1) != 'w':
+							self.set_value(i, j + 1, 'X')
+						
+				elif self.board[i][j] == 'B':
+					if i == 1:
+						self.set_value(i - 1, j, 't')
+					else:
+						self.set_value(i - 1, j, 'X')
+				elif self.board[i][j] == 'L':
+					if j == self.size - 2:
+						self.set_value(i, j + 1, 'r')
+					else:
+						self.set_value(i, j + 1, 'X')
+				elif self.board[i][j] == 'R':
+					if j == 1:
+						self.set_value(i, j - 1, 'l')
+					self.set_value(i, j - 1, 'X')
+				j +=1
+			
+			i += 1
+
+	def fill_occupied_lines(self): #TODO fixme
 		pass
 	
 	# TODO: outros metodos da classe
@@ -204,7 +264,7 @@ class Bimaru(Problem):
 		"""Retorna uma lista de ações que podem ser executadas a
 		partir do estado passado como argumento."""
 		# TODO
-		return ["Water", "Top", "Bottom", "Left", "Right", "Middle", "FillLine", "FillColumn", "Remove", "Something"]
+		return ["Water", "Top", "Bottom", "Left", "Right", "Middle", "FillLine", "FillColumn", "Remove", "Mark"]
 		pass
 
 	def result(self, state: BimaruState, action):
@@ -261,17 +321,19 @@ if __name__ == "__main__":
 	# Imprimir para o standard output no formato indicado.
 	board = Board.parse_instance()
 
-	board.fill_the_board()
 
 	print(board.adjacent_vertical_values(3, 3))
 	print(board.adjacent_horizontal_values(3, 3))
 	print(board.adjacent_vertical_values(1, 0))
 	print(board.adjacent_horizontal_values(1, 0))
 
+	board.fill_the_board()
 	print(" ")
 
 	
 	problem = Bimaru(board)
+	#initial_state = BimaruState(board)
+	#result_state = problem.result(initial_state, (3, 3, 'w'))
 	board.print_board()
 
 	
