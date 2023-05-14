@@ -53,7 +53,8 @@ class Board:
 		return self.board[row][col]
 
 	def set_value(self, row: int, col: int, value: int):
-		self.board[row][col] = value
+		if row >= 0 and row < self.size and col >= 0 and col < self.size:
+			self.board[row][col] = value
 
 	def adjacent_vertical_values(self, row: int, col: int) -> (str, str):
 		"""Devolve os valores imediatamente acima e abaixo,
@@ -145,6 +146,7 @@ class Board:
 	def fill_the_board(self):
 		self.put_line_waters()
 		self.put_possible_parts()
+		self.put_water_around_boat()
 
 	def put_line_waters(self):
 		i = 0
@@ -190,8 +192,87 @@ class Board:
 			i += 1
 
 	def put_water_around_boat(self):
-		np.nonzero(self.board == "T")
+		t_pos_list = np.nonzero((self.board == "T") | (self.board == "t"))
+		i = 0
+		while i < len(t_pos_list[0]):
+			row = t_pos_list[0][i]
+			col = t_pos_list[1][i]
+			self.set_value(row + 1, col - 1, "w")
+			self.set_value(row, col - 1, "w")
+			self.set_value(row - 1, col - 1, "w")
+			self.set_value(row - 1, col , "w")
+			self.set_value(row - 1, col + 1, "w")
+			self.set_value(row, col + 1, "w")
+			self.set_value(row + 1, col + 1, "w")
+			i += 1
 
+		t_pos_list = np.nonzero((self.board == "B") | (self.board == "b"))
+		i = 0
+		while i < len(t_pos_list[0]):
+			row = t_pos_list[0][i]
+			col = t_pos_list[1][i]
+			self.set_value(row + 1, col - 1, "w")
+			self.set_value(row, col - 1, "w")
+			self.set_value(row - 1, col - 1, "w")
+			self.set_value(row - 1, col + 1, "w")
+			self.set_value(row, col + 1, "w")
+			self.set_value(row + 1, col + 1, "w")
+			self.set_value(row + 1, col , "w")
+			i += 1
+
+		t_pos_list = np.nonzero((self.board == "L") | (self.board == "l"))
+		i = 0
+		while i < len(t_pos_list[0]):
+			row = t_pos_list[0][i]
+			col = t_pos_list[1][i]
+			self.set_value(row + 1, col - 1, "w")
+			self.set_value(row, col - 1, "w")
+			self.set_value(row - 1, col - 1, "w")
+			self.set_value(row - 1, col , "w")
+			self.set_value(row - 1, col + 1, "w")
+			self.set_value(row + 1, col + 1, "w")
+			self.set_value(row + 1, col , "w")
+			i += 1
+
+		t_pos_list = np.nonzero((self.board == "L") | (self.board == "l"))
+		i = 0
+		while i < len(t_pos_list[0]):
+			row = t_pos_list[0][i]
+			col = t_pos_list[1][i]
+			self.set_value(row + 1, col - 1, "w")
+			self.set_value(row - 1, col - 1, "w")
+			self.set_value(row - 1, col , "w")
+			self.set_value(row - 1, col + 1, "w")
+			self.set_value(row, col + 1, "w")
+			self.set_value(row + 1, col + 1, "w")
+			self.set_value(row + 1, col , "w")
+			i += 1
+		
+		t_pos_list = np.nonzero((self.board == "M") | (self.board == "m"))
+		i = 0
+		while i < len(t_pos_list[0]):
+			row = t_pos_list[0][i]
+			col = t_pos_list[1][i]
+			self.set_value(row + 1, col - 1, "w")
+			self.set_value(row - 1, col - 1, "w")
+			self.set_value(row - 1, col + 1, "w")
+			self.set_value(row + 1, col + 1, "w")
+			i += 1
+
+		t_pos_list = np.nonzero((self.board == "C") | (self.board == "c"))
+		i = 0
+		while i < len(t_pos_list[0]):
+			row = t_pos_list[0][i]
+			col = t_pos_list[1][i]
+			self.set_value(row + 1, col - 1, "w")
+			self.set_value(row, col - 1, "w")
+			self.set_value(row - 1, col - 1, "w")
+			self.set_value(row - 1, col , "w")
+			self.set_value(row - 1, col + 1, "w")
+			self.set_value(row, col + 1, "w")
+			self.set_value(row + 1, col + 1, "w")
+			self.set_value(row + 1, col, "w")
+			i += 1
 
 	def put_possible_parts(self):
 		i = 0
