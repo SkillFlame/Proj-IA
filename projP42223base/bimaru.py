@@ -36,6 +36,36 @@ class BimaruState:
 	def get_board(self): #added
 		return self.board
 
+	def put_water(self):
+		pass
+
+	def put_top(self):
+		pass
+
+	def put_bottom(self):
+		pass
+
+	def put_left(self):
+		pass
+
+	def put_right(self):
+		pass
+
+	def put_middle(self):
+		pass
+
+	def fill_line(self):
+		pass
+
+	def fill_column(self):
+		pass
+
+	def remove(self):
+		pass
+
+	def mark_spot():
+		pass
+
 	# TODO: outros metodos da classe
 
 
@@ -147,6 +177,7 @@ class Board:
 		self.put_line_waters()
 		self.put_possible_parts()
 		self.put_water_around_boat()
+		self.fill_occupied_rows()
 
 	def put_line_waters(self):
 		i = 0
@@ -325,8 +356,23 @@ class Board:
 			
 			i += 1
 
-	def fill_occupied_lines(self): #TODO fixme
-		pass
+	def fill_occupied_rows(self):
+		i = 0
+		parts = ['T', 't', 'M', 'm', 'B', 'b', 'L', 'l', 'R', 'r', 'X']
+		while i < self.size:
+			j = 0
+			while j < self.size:
+				num_parts_line = np.count_nonzero(np.char.strip(self.board[i]) == np.array(parts)[:, None])
+				if self.rowvals[i] == num_parts_line:
+					if self.get_value(i, j) not in ['T', 't']:
+						self.set_value(i, j, 'w')
+				num_parts_col = np.count_nonzero(np.char.strip(self.board[:, j]) == np.array(parts)[:, None])
+				if self.colvals[j] == num_parts_col:
+					if self.get_value(i, j) == ' ':
+						self.set_value(i, j, 'w')
+
+				j += 1
+			i += 1
 	
 	# TODO: outros metodos da classe
 
