@@ -248,7 +248,7 @@ class Board:
 			self.set_value(row + 1, col , "w")
 			i += 1
 		
-		t_pos_list = np.nonzero((self.board == "M") | (self.board == "m"))
+		t_pos_list = np.nonzero((self.board == "M") | (self.board == "m") | (self.board == "X"))
 		i = 0
 		while i < len(t_pos_list[0]):
 			row = t_pos_list[0][i]
