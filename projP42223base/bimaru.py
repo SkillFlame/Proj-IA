@@ -146,7 +146,6 @@ class Board:
 			> from sys import stdin
 			> line = stdin.readline().split()
 		"""
-		# TODO
 		matrix = np.full((10,10), ' ', dtype=str)
 		inp_row = sys.stdin.readline()
 		vals_row = [int(x) for x in inp_row.split()[1:]]
@@ -157,11 +156,6 @@ class Board:
 		num_hints = int(input())
 		for i in range(num_hints):
 			line = sys.stdin.readline().split()
-			# FIXME change this
-			'''
-			if str(line[3]) == "W":
-				line[3] = "."
-			'''
 			matrix[int(line[1])][int(line[2])] = str(line[3])
 
 		# adicionar atributos aqui e possivel board.new_attr = uu
@@ -178,6 +172,7 @@ class Board:
 		self.put_possible_parts()
 		self.put_water_around_boat()
 		self.fill_occupied_rows()
+		self.complete_possible_boats()
 
 	def put_line_waters(self):
 		i = 0
@@ -374,9 +369,32 @@ class Board:
 				j += 1
 			i += 1
 	
+	def complete_possible_boats(self): #e necessario saber quais sao os available spots
+		i = 0
+		parts = ['T', 't', 'M', 'm', 'B', 'b', 'L', 'l', 'R', 'r']
+		while i < self.size:
+			j = 0
+			while j < self.size:
+				if self.get_value(i, j) == 'X':
+					if self.adjacent_vertical_values(i, j) == ('m', 'w') or self.adjacent_vertical_values(i, j) == ('M', 'w') \
+					 or self.adjacent_vertical_values(i, j) == ('m', 'W') or self.adjacent_vertical_values(i, j) == ('M', 'W'):
+						if self.colvals[j] == 3:
+							self.set_value(i, j, 'b')
+					
+					elif self.adjacent_vertical_values(i, j) == ('w', 'b') or self.adjacent_horizontal_values(i, j) == ('W', 'b') \
+					 or self.adjacent_vertical_values(i, j) == ('w', 'B') or self.adjacent_vertical_values(i, j) == ('W', 'B'):
+						if self.colvals[j] == 2:
+							self.set_value(i, j, 't')
+				elif self.get_value(i, j) == ' ':
+					if self.adjacent_horizontal_values(i, j) == ('w', 'w') or self.adjacent_horizontal_values(i, j) == ('W', 'w') \
+				 	 or self.adjacent_horizontal_values(i, j) == ('W', 'W'):
+						if self.adjacent_vertical_values(i, j) == ('w', 'w') or self.adjacent_vertical_values(i, j) == ('W', 'w') \
+					 	 or self.adjacent_vertical_values(i, j) == ('W', 'W'):
+							if self.colvals[j] == 1:
+								self.set_value(i, j, 'c')
+				j += 1
+			i += 1
 	# TODO: outros metodos da classe
-
-
 
 class Bimaru(Problem):
 	def __init__(self, board: Board): #,goal):
