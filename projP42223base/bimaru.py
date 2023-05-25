@@ -173,6 +173,9 @@ class Board:
 		self.put_water_around_boat()
 		self.fill_occupied_rows()
 		self.complete_possible_boats()
+		self.update()
+		self.complete_basic()
+
 
 	def put_line_waters(self):
 		i = 0
@@ -371,7 +374,7 @@ class Board:
 	
 	def complete_possible_boats(self): #e necessario saber quais sao os available spots
 		i = 0
-		parts = ['T', 't', 'M', 'm', 'B', 'b', 'L', 'l', 'R', 'r']
+		#parts = ['T', 't', 'M', 'm', 'B', 'b', 'L', 'l', 'R', 'r']
 		while i < self.size:
 			j = 0
 			while j < self.size:
@@ -391,9 +394,104 @@ class Board:
 						if self.adjacent_vertical_values(i, j) == ('w', 'w') or self.adjacent_vertical_values(i, j) == ('W', 'w') \
 					 	 or self.adjacent_vertical_values(i, j) == ('W', 'W'):
 							if self.colvals[j] == 1:
-								self.set_value(i, j, 'c')
+								self.set_value(i, j, 'c')		
 				j += 1
 			i += 1
+
+	def update(self):
+		i = 0
+		while i < self.size:
+			j = 0
+			while j < self.size:
+				if (self.get_value(i, j) != 'w') & (self.get_value(i, j) != ' ') & (self.get_value(i, j) != 'W'):
+					self.rowvals[i] -= 1
+					self.colvals[j] -= 1
+				j += 1
+			i += 1
+		
+		i = 0
+		while i < self.size:
+			j = 0
+			while j < self.size:
+				if ' ' in self.board[i] and self.get_value(i, j) == ' ':
+					if self.rowvals[i] > 0 and self.colvals[j] > 0:
+						if np.count_nonzero(self.board[i] == ' ') == self.rowvals[i]:
+							self.set_value(i, j, 'X')
+							self.rowvals[i] -= 1
+							self.colvals[j] -= 1
+						elif np.count_nonzero(self.board[:,j] == ' ') == self.colvals[j]:
+							self.set_value(i, j, 'X')
+							self.colvals[j] -= 1
+							self.rowvals[i] -= 1
+				j += 1
+			
+			i += 1
+		i = 0
+		while i < self.size:
+			j = 0
+			while j < self.size:
+				if self.rowvals[i] == 1 and self.colvals[j] == 1:
+									self.set_value(i, j, 'X')
+									self.rowvals[i] -= 1
+									self.colvals[j] -= 1
+				j += 1
+			
+			i += 1
+
+		i = 0
+		while i < self.size:
+			j = 0
+			while j < self.size:
+				if self.rowvals == self.colvals:
+					if self.get_value(i, j) == 'w' or self.get_value(i, j) == 'W':
+						self.set_value(i, j, ' ')
+				j += 1
+			i += 1
+
+
+	def complete_basic(self):
+		i = 0
+		while i < self.size:
+			j = 0
+			while j < self.size:
+				if self.get_value(i, j) == 'X':
+					if self.adjacent_vertical_values(i, j) == ('T', None) or self.adjacent_vertical_values(i, j) == ('t', None):
+						self.set_value(i, j, 'b')
+
+					elif self.adjacent_vertical_values(i, j) == (None, None):
+					 	self.set_value(i, j, 'c')
+
+					elif self.adjacent_vertical_values(i, j) == (None, 'X') and self.adjacent_vertical_values(i + 1, j) == ('X', None):
+						self.set_value(i, j, 't')
+						self.set_value(i + 1, j, 'b')
+					elif self.adjacent_vertical_values(i, j) == (None, 'X') and self.adjacent_vertical_values(i + 1, j) == ('X', 'X') \
+					 and self.adjacent_vertical_values(i + 2, j) == ('X', None):
+						self.set_value(i, j, 't')
+						self.set_value(i + 1, j, 'm')
+						self.set_value(i + 2, j, 'b')
+					elif self.adjacent_vertical_values(i, j) == (None, 'X') and self.adjacent_vertical_values(i + 1, j) == ('X', 'X') \
+					 and self.adjacent_vertical_values(i + 2, j) == ('X', 'X') and self.adjacent_vertical_values(i + 3, j) == ('X', None):
+						self.set_value(i, j, 't')
+						self.set_value(i + 1, j, 'm')
+						self.set_value(i + 2, j, 'm')
+						self.set_value(i + 3, j, 'b')
+				j += 1
+
+			i += 1
+
+
+	def print_pretty_board(self):
+		matrix = self.board
+		rows, cols = matrix.shape
+		for i in range(rows):
+			row_str = ''
+			for j in range(cols):
+				if matrix[i][j] == ' ':
+					row_str += '.'
+				else:
+					row_str += matrix[i][j]
+			print(row_str)
+
 	# TODO: outros metodos da classe
 
 class Bimaru(Problem):
@@ -408,8 +506,7 @@ class Bimaru(Problem):
 	def actions(self, state: BimaruState) -> list:
 		"""Retorna uma lista de ações que podem ser executadas a
 		partir do estado passado como argumento."""
-		# TODO
-		return ["Water", "Top", "Bottom", "Left", "Right", "Middle", "FillLine", "FillColumn", "Remove", "Mark"]
+		return ["Water", "Top", "Bottom", "Left", "Right", "Middle", "Remove", "Mark"]
 		pass
 
 	def result(self, state: BimaruState, action):
@@ -431,10 +528,6 @@ class Bimaru(Problem):
 			return state.put_right()
 		elif(action == "Middle"):
 			return state.put_middle()
-		elif(action == "FillLine"):
-			return state.fill_line()
-		elif(action == "FillColumn"):
-			return state.fill_column
 		elif(action == "Remove"):
 			return state.remove()
 		elif(action == "Mark"):
@@ -467,18 +560,19 @@ if __name__ == "__main__":
 	board = Board.parse_instance()
 
 
-	print(board.adjacent_vertical_values(3, 3))
-	print(board.adjacent_horizontal_values(3, 3))
-	print(board.adjacent_vertical_values(1, 0))
-	print(board.adjacent_horizontal_values(1, 0))
+	#print(board.adjacent_vertical_values(3, 3))
+	#print(board.adjacent_horizontal_values(3, 3))
+	#print(board.adjacent_vertical_values(1, 0))
+	#print(board.adjacent_horizontal_values(1, 0))
 
 	board.fill_the_board()
-	print(" ")
+	#print(" ")
 
 	
 	problem = Bimaru(board)
 	#initial_state = BimaruState(board)
 	#result_state = problem.result(initial_state, (3, 3, 'w'))
 	board.print_board()
+	board.print_pretty_board()
 
 	
