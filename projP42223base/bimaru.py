@@ -63,13 +63,13 @@ class Board:
 			top = self.get_value(row -1 , col)
 			bottom = self.get_value(row + 1, col)
 
-		if top == ' ':
+		if top == ' ' or top == 'W':
 			top = None
-		elif top == '.' or top == 'w' or top == 'W':
+		elif top == 'w' :
 			top = 'w'
-		if bottom == ' ':
+		if bottom == ' ' or bottom == 'W':
 			bottom = None
-		elif bottom == '.' or bottom == 'w' or bottom == 'W':
+		elif bottom == 'w' :
 			bottom = 'w'
 
 		return (top, bottom)
@@ -87,13 +87,13 @@ class Board:
 			left = self.get_value(row, col - 1)
 			right = self.get_value(row, col + 1)
 
-		if left == ' ':
+		if left == ' ' or left == 'W':
 			left = None
-		elif left == '.' or left == 'w' or left == 'W':
+		elif left == 'w':
 			left = 'w'
-		if right == ' ':
+		if right == ' ' or right == 'W':
 			right = None
-		elif right == '.' or right == 'w' or right == 'W':
+		elif right == 'w':
 			right = 'w' 
 		return (left, right)
 
@@ -184,19 +184,29 @@ class Board:
 						j += 1
 			i += 1
 
+	def is_valid_position(self, row, col):
+		return 0 <= row <= 9 and 0 <= col <= 9
+
 	def put_water_around_boat(self):
 		t_pos_list = np.nonzero((self.board == "T") | (self.board == "t"))
 		i = 0
 		while i < len(t_pos_list[0]):
 			row = t_pos_list[0][i]
 			col = t_pos_list[1][i]
-			self.set_value(row + 1, col - 1, "w")
-			self.set_value(row, col - 1, "w")
-			self.set_value(row - 1, col - 1, "w")
-			self.set_value(row - 1, col , "w")
-			self.set_value(row - 1, col + 1, "w")
-			self.set_value(row, col + 1, "w")
-			self.set_value(row + 1, col + 1, "w")
+			if self.is_valid_position(row + 1, col - 1) and self.board[row + 1, col - 1] != 'W':
+				self.set_value(row + 1, col - 1, "w")
+			if self.is_valid_position(row, col - 1) and self.board[row, col - 1] != 'W':	
+				self.set_value(row, col - 1, "w")
+			if self.is_valid_position(row - 1, col - 1) and self.board[row - 1, col - 1] != 'W':
+				self.set_value(row - 1, col - 1, "w")
+			if self.is_valid_position(row - 1, col) and self.board[row - 1, col] != 'W'  :
+				self.set_value(row - 1, col, "w")
+			if self.is_valid_position(row - 1, col + 1) and self.board[row - 1, col + 1] != 'W':
+				self.set_value(row - 1, col + 1, "w")
+			if self.is_valid_position(row, col + 1) and self.board[row, col + 1] != 'W':
+				self.set_value(row, col + 1, "w")
+			if self.is_valid_position(row + 1, col + 1) and self.board[row + 1, col + 1] != 'W':
+				self.set_value(row + 1, col + 1, "w")
 			i += 1
 
 		t_pos_list = np.nonzero((self.board == "B") | (self.board == "b"))
@@ -204,13 +214,20 @@ class Board:
 		while i < len(t_pos_list[0]):
 			row = t_pos_list[0][i]
 			col = t_pos_list[1][i]
-			self.set_value(row + 1, col - 1, "w")
-			self.set_value(row, col - 1, "w")
-			self.set_value(row - 1, col - 1, "w")
-			self.set_value(row - 1, col + 1, "w")
-			self.set_value(row, col + 1, "w")
-			self.set_value(row + 1, col + 1, "w")
-			self.set_value(row + 1, col , "w")
+			if self.is_valid_position(row + 1, col - 1) and self.board[row + 1, col - 1] != 'W':
+				self.set_value(row + 1, col - 1, "w")
+			if self.is_valid_position(row, col - 1) and self.board[row, col - 1] != 'W':
+				self.set_value(row, col - 1, "w")
+			if self.is_valid_position(row - 1, col - 1) and self.board[row - 1, col - 1] != 'W':
+				self.set_value(row - 1, col - 1, "w")
+			if self.is_valid_position(row - 1, col + 1) and self.board[row - 1, col + 1] != 'W':
+				self.set_value(row - 1, col + 1, "w")
+			if self.is_valid_position(row, col + 1) and self.board[row, col + 1] != 'W':
+				self.set_value(row, col + 1, "w")
+			if self.is_valid_position(row + 1, col + 1) and self.board[row + 1, col + 1] != 'W':
+				self.set_value(row + 1, col + 1, "w")
+			if self.is_valid_position(row + 1, col) and self.board[row + 1, col] != 'W':
+				self.set_value(row + 1, col, "w")
 			i += 1
 
 		t_pos_list = np.nonzero((self.board == "L") | (self.board == "l"))
@@ -218,27 +235,41 @@ class Board:
 		while i < len(t_pos_list[0]):
 			row = t_pos_list[0][i]
 			col = t_pos_list[1][i]
-			self.set_value(row + 1, col - 1, "w")
-			self.set_value(row, col - 1, "w")
-			self.set_value(row - 1, col - 1, "w")
-			self.set_value(row - 1, col , "w")
-			self.set_value(row - 1, col + 1, "w")
-			self.set_value(row + 1, col + 1, "w")
-			self.set_value(row + 1, col , "w")
+			if self.is_valid_position(row + 1, col - 1) and self.board[row + 1, col - 1] != 'W':
+				self.set_value(row + 1, col - 1, "w")
+			if self.is_valid_position(row, col - 1) and self.board[row, col - 1] != 'W':
+				self.set_value(row, col - 1, "w")
+			if self.is_valid_position(row - 1, col - 1) and self.board[row - 1, col - 1] != 'W':
+				self.set_value(row - 1, col - 1, "w")
+			if self.is_valid_position(row - 1, col) and self.board[row - 1, col] != 'W':
+				self.set_value(row - 1, col, "w")
+			if self.is_valid_position(row - 1, col + 1) and self.board[row - 1, col + 1] != 'W':
+				self.set_value(row - 1, col + 1, "w")
+			if self.is_valid_position(row + 1, col + 1) and self.board[row + 1, col + 1] != 'W':
+				self.set_value(row + 1, col + 1, "w")
+			if self.is_valid_position(row + 1, col) and self.board[row + 1, col] != 'W':
+				self.set_value(row + 1, col, "w")
 			i += 1
 
-		t_pos_list = np.nonzero((self.board == "L") | (self.board == "l"))
+		t_pos_list = np.nonzero((self.board == "R") | (self.board == "r"))
 		i = 0
 		while i < len(t_pos_list[0]):
 			row = t_pos_list[0][i]
 			col = t_pos_list[1][i]
-			self.set_value(row + 1, col - 1, "w")
-			self.set_value(row - 1, col - 1, "w")
-			self.set_value(row - 1, col , "w")
-			self.set_value(row - 1, col + 1, "w")
-			self.set_value(row, col + 1, "w")
-			self.set_value(row + 1, col + 1, "w")
-			self.set_value(row + 1, col , "w")
+			if self.is_valid_position(row + 1, col - 1) and self.board[row + 1, col - 1] != 'W':
+				self.set_value(row + 1, col - 1, "w")
+			if self.is_valid_position(row - 1, col - 1) and self.board[row - 1, col - 1] != 'W':
+				self.set_value(row - 1, col - 1, "w")
+			if self.is_valid_position(row - 1, col) and self.board[row - 1, col] != 'W':
+				self.set_value(row - 1, col, "w")
+			if self.is_valid_position(row - 1, col + 1) and self.board[row - 1, col + 1] != 'W':
+				self.set_value(row - 1, col + 1, "w")
+			if self.is_valid_position(row, col + 1) and self.board[row, col + 1] != 'W':
+				self.set_value(row, col + 1, "w")
+			if self.is_valid_position(row + 1, col + 1) and self.board[row + 1, col + 1] != 'W':
+				self.set_value(row + 1, col + 1, "w")
+			if self.is_valid_position(row + 1, col) and self.board[row + 1, col] != 'W':
+				self.set_value(row + 1, col, "w")
 			i += 1
 		
 		t_pos_list = np.nonzero((self.board == "M") | (self.board == "m") | (self.board == "X"))
@@ -246,25 +277,39 @@ class Board:
 		while i < len(t_pos_list[0]):
 			row = t_pos_list[0][i]
 			col = t_pos_list[1][i]
-			self.set_value(row + 1, col - 1, "w")
-			self.set_value(row - 1, col - 1, "w")
-			self.set_value(row - 1, col + 1, "w")
-			self.set_value(row + 1, col + 1, "w")
+			if self.is_valid_position(row + 1, col - 1) and self.board[row + 1, col - 1] != 'W':
+				self.set_value(row + 1, col - 1, "w")
+			if self.is_valid_position(row - 1, col - 1) and self.board[row - 1, col - 1] != 'W':
+				self.set_value(row - 1, col - 1, "w")
+			if self.is_valid_position(row - 1, col + 1) and self.board[row - 1, col + 1] != 'W':
+				self.set_value(row - 1, col + 1, "w")
+			if self.is_valid_position(row + 1, col + 1) and self.board[row + 1, col + 1] != 'W':
+				self.set_value(row + 1, col + 1, "w")
 			i += 1
 
 		t_pos_list = np.nonzero((self.board == "C") | (self.board == "c"))
 		i = 0
 		while i < len(t_pos_list[0]):
+				
 			row = t_pos_list[0][i]
 			col = t_pos_list[1][i]
-			self.set_value(row + 1, col - 1, "w")
-			self.set_value(row, col - 1, "w")
-			self.set_value(row - 1, col - 1, "w")
-			self.set_value(row - 1, col , "w")
-			self.set_value(row - 1, col + 1, "w")
-			self.set_value(row, col + 1, "w")
-			self.set_value(row + 1, col + 1, "w")
-			self.set_value(row + 1, col, "w")
+			
+			if self.is_valid_position(row + 1, col - 1) and self.board[row + 1, col - 1] != 'W':
+				self.set_value(row + 1, col - 1, "w")
+			if self.is_valid_position(row, col - 1) and self.board[row, col - 1] != 'W':
+				self.set_value(row, col - 1, "w")
+			if self.is_valid_position(row - 1, col - 1) and self.board[row - 1, col - 1] != 'W':
+				self.set_value(row - 1, col - 1, "w")
+			if self.is_valid_position(row - 1, col) and self.board[row - 1, col] != 'W':
+				self.set_value(row - 1, col, "w")
+			if self.is_valid_position(row - 1, col + 1) and self.board[row - 1, col + 1] != 'W':
+				self.set_value(row - 1, col + 1, "w")
+			if self.is_valid_position(row, col + 1) and self.board[row, col + 1] != 'W':
+				self.set_value(row, col + 1, "w")
+			if self.is_valid_position(row + 1, col + 1) and self.board[row + 1, col + 1] != 'W':
+				self.set_value(row + 1, col + 1, "w")
+			if self.is_valid_position(row + 1, col) and self.board[row + 1, col] != 'W':
+				self.set_value(row + 1, col, "w")
 			i += 1
 
 	def put_possible_parts(self):
@@ -407,7 +452,7 @@ class Board:
 			j = 0
 			while j < self.size:
 				if self.rowvals == self.colvals:
-					if self.get_value(i, j) == 'w' or self.get_value(i, j) == 'W':
+					if self.get_value(i, j) == 'w':
 						self.set_value(i, j, ' ')
 				j += 1
 			i += 1
@@ -673,13 +718,14 @@ class Bimaru(Problem):
 		# TODO
 		#criar um board para criar um state
 		self.initial = BimaruState(board)
+		self.board = board
 		#self.goal = goal
 		pass
 
 	def actions(self, state: BimaruState) -> list:
 		"""Retorna uma lista de ações que podem ser executadas a
 		partir do estado passado como argumento."""
-		return ["Water", "Top", "Bottom", "Left", "Right", "Middle", "Remove", "Mark"]
+		return [4, 3, 2, 1]
 		pass #METER BARCOS
 
 	def result(self, state: BimaruState, action):
@@ -689,24 +735,16 @@ class Bimaru(Problem):
 		self.actions(state)."""
 		# TODO
 
-		if(action == "Water"):
-			return state.put_water()
-		elif(action == "Top"):
-			return state.put_top()
-		elif(action == "Bottom"):
-			return state.put_bottom()
-		elif(action == "Left"):
-			return state.put_left()
-		elif(action == "Right"):
-			return state.put_right()
-		elif(action == "Middle"):
-			return state.put_middle()
-		elif(action == "Remove"):
-			return state.remove()
-		elif(action == "Mark"):
-			return state.mark_spot()
+		if action == 4:
+			pass
+		elif action == 3:
+			pass
+		elif action == 2:
+			pass
+		elif action == 1:
+			pass
 		else:
-			return NotImplementedError()
+			pass
 
 	def goal_test(self, state: BimaruState):
 		"""Retorna True se e só se o estado passado como argumento é
