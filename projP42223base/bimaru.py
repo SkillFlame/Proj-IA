@@ -42,8 +42,6 @@ class Board:
 		self.size = 10
 		self.rowvals = row_vals
 		self.colvals = col_vals
-		self.copyrow = cp.deepcopy(row_vals)
-		self.copycol = cp.deepcopy(col_vals)
 		self.copyhints = copyhints
 		# Index is the boat length
 		self.boats_left = [0, 4, 3, 2, 1]
@@ -141,6 +139,7 @@ class Board:
 		self.put_water_around_boat()
 		self.fill_occupied_rows()
 		self.complete_possible_boats()
+		self.get_actions()
 		#self.complete_boat()
 		#self.update()
 
@@ -397,6 +396,53 @@ class Board:
 			#if self.colvals[j] == np.count_nonzero(self.board[:,j] == 'X'):
 			#	self.board[:, j] == np.where(self.board[:, j] == ' ', 'w', self.board[:, j])
 	
+
+	def get_actions(self):
+		num_boats = [0, 4, 3, 2, 1] #boat size : number boats
+		row_vals = cp.deepcopy(self.rowvals)
+		col_vals = cp.deepcopy(self.colvals)
+
+
+		for i in range(10):
+			row = self.board[i]
+			boat_count = 0
+			for j in range(10):
+				if row[j] == 'X':
+					row_vals[i] -= 1
+
+				if row[j] == 'X' and self.adjacent_vertical_values(i, j) == (None, None):
+					boat_count += 1
+				elif row[j] == '?':
+					boat_count = 0
+				elif row[j] == ' ' and boat_count != 0:
+					num_boats[boat_count] -= 1
+					boat_count = 0
+			if boat_count >= 1:
+				num_boats[boat_count] -= 1
+		
+		for i in range(10):
+			col = self.board[:, i]
+			boat_count = 0
+			for j in range(10):
+				if col[j] == 'X':
+					col_vals[i] -= 1
+				
+				if col[j] == 'X' and self.adjacent_horizontal_values(j, i) == (None, None):
+					boat_count += 1	
+				elif col[j] == '?':
+					boat_count = 0
+				elif col[j] == ' ' and boat_count != 0:
+					if boat_count > 1:
+						num_boats[boat_count] -= 1
+					boat_count = 0
+		
+		print(num_boats)
+		print(row_vals)
+		print(col_vals)
+
+
+
+
 	def update(self):
 		for i in range(len(self.copyhints)):
 			values = self.copyhints[i][1:4]
@@ -772,9 +818,11 @@ class Bimaru(Problem):
 				if row[j] == 'X' and self.board.adjacent_vertical_values(i, j) == (None, None):
 					boat_count += 1
 					x_count += 1
-				elif row[j] == ' ':
+				elif row[j] == ' ' and boat_count != 0:
 					num_boats[boat_count] -= 1
 					boat_count = 0
+			if boat_count >= 1:
+				num_boats[boat_count] -= 1
 			
 			if x_count != self.board.copyrow[i]:
 				return False
@@ -787,10 +835,10 @@ class Bimaru(Problem):
 				if col[j] == 'X' and self.board.adjacent_horizontal_values(j, i) == (None, None):
 					boat_count += 1
 					x_count += 1
-				elif col[j] == ' ':
-					if boat_count != 1:
+				elif col[j] == ' ' and boat_count != 0:
+					if boat_count > 1:
 						num_boats[boat_count] -= 1
-						boat_count = 0
+					boat_count = 0
 			
 			if x_count != self.board.copycol[i]:
 				return False
@@ -799,7 +847,7 @@ class Bimaru(Problem):
 			return False
 		
 		return True
-
+	
 
 if __name__ == "__main__":
 	# TODO:
