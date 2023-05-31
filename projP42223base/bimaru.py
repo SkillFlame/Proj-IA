@@ -373,11 +373,22 @@ class Board:
 				j += 1
 			i += 1
 
+		self.put_water_around_boat()
+
 		i = 0
 		while i < self.size:
 			j = 0
 			while j < self.size:
-				if self.get_value(i, j) == 'w':
+				if self.get_value(i, j) == ' ':
+					self.set_value(i, j, '?')
+				j += 1
+			i += 1
+
+		i = 0
+		while i < self.size:
+			j = 0
+			while j < self.size:
+				if self.get_value(i, j) == 'w' or self.get_value(i, j) == 'W':
 					self.set_value(i, j, ' ')
 				j += 1
 			i += 1
@@ -739,9 +750,7 @@ class Bimaru(Problem):
 		"""Retorna True se e só se o estado passado como argumento é
 		um estado objetivo. Deve verificar se todas as posições do tabuleiro
 		estão preenchidas de acordo com as regras do problema."""
-		# TODO
-		#return self.goal == state.board
-		pass
+		return self.is_goal(state.board)
 
 	def h(self, node: Node):
 		"""Função heuristica utilizada para a procura A*."""
@@ -749,18 +758,47 @@ class Bimaru(Problem):
 		pass
 
 	# TODO: outros metodos da classe
-	def is_goal(self):
-		num_boats = {4: 1, 3: 2, 2: 3, 1: 4} #boat size : number boats
+	def is_goal(self, board):
+		num_boats = [0, 4, 3, 2, 1] #boat size : number boats
+
+		if self.board.count_nonzero('X') != 20:
+			return False
 
 		for i in range(10):
 			row = self.board[i]
+			x_count = 0
+			boat_count = 0
 			for j in range(10):
-				#if row[j] == 'X' and self.board.adjacent_vertical_values(i, j) == (None, None):
-				pass
-
+				if row[j] == 'X' and self.board.adjacent_vertical_values(i, j) == (None, None):
+					boat_count += 1
+					x_count += 1
+				elif row[j] == ' ':
+					num_boats[boat_count] -= 1
+					boat_count = 0
+			
+			if x_count != self.board.copyrow[i]:
+				return False
 		
-				
+		for i in range(10):
+			col = self.board[:, i]
+			x_count = 0
+			boat_count = 0
+			for j in range(10):
+				if col[j] == 'X' and self.board.adjacent_horizontal_values(j, i) == (None, None):
+					boat_count += 1
+					x_count += 1
+				elif col[j] == ' ':
+					if boat_count != 1:
+						num_boats[boat_count] -= 1
+						boat_count = 0
+			
+			if x_count != self.board.copycol[i]:
+				return False
 
+		if num_boats.count(0) != 5:
+			return False
+		
+		return True
 
 
 if __name__ == "__main__":
