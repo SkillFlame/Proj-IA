@@ -195,20 +195,13 @@ class Board:
 		while i < len(t_pos_list[0]):
 			row = t_pos_list[0][i]
 			col = t_pos_list[1][i]
-			if self.is_valid_position(row + 1, col - 1) and self.board[row + 1, col - 1] != 'W':
-				self.set_value(row + 1, col - 1, "w")
-			if self.is_valid_position(row, col - 1) and self.board[row, col - 1] != 'W':	
-				self.set_value(row, col - 1, "w")
-			if self.is_valid_position(row - 1, col - 1) and self.board[row - 1, col - 1] != 'W':
-				self.set_value(row - 1, col - 1, "w")
-			if self.is_valid_position(row - 1, col) and self.board[row - 1, col] != 'W'  :
-				self.set_value(row - 1, col, "w")
-			if self.is_valid_position(row - 1, col + 1) and self.board[row - 1, col + 1] != 'W':
-				self.set_value(row - 1, col + 1, "w")
-			if self.is_valid_position(row, col + 1) and self.board[row, col + 1] != 'W':
-				self.set_value(row, col + 1, "w")
-			if self.is_valid_position(row + 1, col + 1) and self.board[row + 1, col + 1] != 'W':
-				self.set_value(row + 1, col + 1, "w")
+			self.set_value(row + 1, col - 1, "w")
+			self.set_value(row, col - 1, "w")
+			self.set_value(row - 1, col - 1, "w")
+			self.set_value(row - 1, col, "w")
+			self.set_value(row - 1, col + 1, "w")
+			self.set_value(row, col + 1, "w")
+			self.set_value(row + 1, col + 1, "w")
 			i += 1
 
 		t_pos_list = np.nonzero((self.board == "B") | (self.board == "b"))
@@ -216,20 +209,13 @@ class Board:
 		while i < len(t_pos_list[0]):
 			row = t_pos_list[0][i]
 			col = t_pos_list[1][i]
-			if self.is_valid_position(row + 1, col - 1) and self.board[row + 1, col - 1] != 'W':
-				self.set_value(row + 1, col - 1, "w")
-			if self.is_valid_position(row, col - 1) and self.board[row, col - 1] != 'W':
-				self.set_value(row, col - 1, "w")
-			if self.is_valid_position(row - 1, col - 1) and self.board[row - 1, col - 1] != 'W':
-				self.set_value(row - 1, col - 1, "w")
-			if self.is_valid_position(row - 1, col + 1) and self.board[row - 1, col + 1] != 'W':
-				self.set_value(row - 1, col + 1, "w")
-			if self.is_valid_position(row, col + 1) and self.board[row, col + 1] != 'W':
-				self.set_value(row, col + 1, "w")
-			if self.is_valid_position(row + 1, col + 1) and self.board[row + 1, col + 1] != 'W':
-				self.set_value(row + 1, col + 1, "w")
-			if self.is_valid_position(row + 1, col) and self.board[row + 1, col] != 'W':
-				self.set_value(row + 1, col, "w")
+			self.set_value(row + 1, col - 1, "w")
+			self.set_value(row, col - 1, "w")
+			self.set_value(row - 1, col - 1, "w")
+			self.set_value(row - 1, col + 1, "w")
+			self.set_value(row, col + 1, "w")
+			self.set_value(row + 1, col + 1, "w")
+			self.set_value(row + 1, col, "w")
 			i += 1
 
 		t_pos_list = np.nonzero((self.board == "L") | (self.board == "l"))
@@ -237,20 +223,13 @@ class Board:
 		while i < len(t_pos_list[0]):
 			row = t_pos_list[0][i]
 			col = t_pos_list[1][i]
-			if self.is_valid_position(row + 1, col - 1) and self.board[row + 1, col - 1] != 'W':
-				self.set_value(row + 1, col - 1, "w")
-			if self.is_valid_position(row, col - 1) and self.board[row, col - 1] != 'W':
-				self.set_value(row, col - 1, "w")
-			if self.is_valid_position(row - 1, col - 1) and self.board[row - 1, col - 1] != 'W':
-				self.set_value(row - 1, col - 1, "w")
-			if self.is_valid_position(row - 1, col) and self.board[row - 1, col] != 'W':
-				self.set_value(row - 1, col, "w")
-			if self.is_valid_position(row - 1, col + 1) and self.board[row - 1, col + 1] != 'W':
-				self.set_value(row - 1, col + 1, "w")
-			if self.is_valid_position(row + 1, col + 1) and self.board[row + 1, col + 1] != 'W':
-				self.set_value(row + 1, col + 1, "w")
-			if self.is_valid_position(row + 1, col) and self.board[row + 1, col] != 'W':
-				self.set_value(row + 1, col, "w")
+			self.set_value(row + 1, col - 1, "w")
+			self.set_value(row, col - 1, "w")
+			self.set_value(row - 1, col - 1, "w")
+			self.set_value(row - 1, col, "w")
+			self.set_value(row - 1, col + 1, "w")
+			self.set_value(row + 1, col + 1, "w")
+			self.set_value(row + 1, col, "w")
 			i += 1
 
 		t_pos_list = np.nonzero((self.board == "R") | (self.board == "r"))
@@ -258,20 +237,13 @@ class Board:
 		while i < len(t_pos_list[0]):
 			row = t_pos_list[0][i]
 			col = t_pos_list[1][i]
-			if self.is_valid_position(row + 1, col - 1) and self.board[row + 1, col - 1] != 'W':
-				self.set_value(row + 1, col - 1, "w")
-			if self.is_valid_position(row - 1, col - 1) and self.board[row - 1, col - 1] != 'W':
-				self.set_value(row - 1, col - 1, "w")
-			if self.is_valid_position(row - 1, col) and self.board[row - 1, col] != 'W':
-				self.set_value(row - 1, col, "w")
-			if self.is_valid_position(row - 1, col + 1) and self.board[row - 1, col + 1] != 'W':
-				self.set_value(row - 1, col + 1, "w")
-			if self.is_valid_position(row, col + 1) and self.board[row, col + 1] != 'W':
-				self.set_value(row, col + 1, "w")
-			if self.is_valid_position(row + 1, col + 1) and self.board[row + 1, col + 1] != 'W':
-				self.set_value(row + 1, col + 1, "w")
-			if self.is_valid_position(row + 1, col) and self.board[row + 1, col] != 'W':
-				self.set_value(row + 1, col, "w")
+			self.set_value(row + 1, col - 1, "w")
+			self.set_value(row - 1, col - 1, "w")
+			self.set_value(row - 1, col, "w")
+			self.set_value(row - 1, col + 1, "w")
+			self.set_value(row, col + 1, "w")
+			self.set_value(row + 1, col + 1, "w")
+			self.set_value(row + 1, col, "w")
 			i += 1
 		
 		t_pos_list = np.nonzero((self.board == "M") | (self.board == "m") | (self.board == "X"))
@@ -279,14 +251,10 @@ class Board:
 		while i < len(t_pos_list[0]):
 			row = t_pos_list[0][i]
 			col = t_pos_list[1][i]
-			if self.is_valid_position(row + 1, col - 1) and self.board[row + 1, col - 1] != 'W':
-				self.set_value(row + 1, col - 1, "w")
-			if self.is_valid_position(row - 1, col - 1) and self.board[row - 1, col - 1] != 'W':
-				self.set_value(row - 1, col - 1, "w")
-			if self.is_valid_position(row - 1, col + 1) and self.board[row - 1, col + 1] != 'W':
-				self.set_value(row - 1, col + 1, "w")
-			if self.is_valid_position(row + 1, col + 1) and self.board[row + 1, col + 1] != 'W':
-				self.set_value(row + 1, col + 1, "w")
+			self.set_value(row + 1, col - 1, "w")
+			self.set_value(row - 1, col - 1, "w")
+			self.set_value(row - 1, col + 1, "w")
+			self.set_value(row + 1, col + 1, "w")
 			i += 1
 
 		t_pos_list = np.nonzero((self.board == "C") | (self.board == "c"))
@@ -296,22 +264,14 @@ class Board:
 			row = t_pos_list[0][i]
 			col = t_pos_list[1][i]
 			
-			if self.is_valid_position(row + 1, col - 1) and self.board[row + 1, col - 1] != 'W':
-				self.set_value(row + 1, col - 1, "w")
-			if self.is_valid_position(row, col - 1) and self.board[row, col - 1] != 'W':
-				self.set_value(row, col - 1, "w")
-			if self.is_valid_position(row - 1, col - 1) and self.board[row - 1, col - 1] != 'W':
-				self.set_value(row - 1, col - 1, "w")
-			if self.is_valid_position(row - 1, col) and self.board[row - 1, col] != 'W':
-				self.set_value(row - 1, col, "w")
-			if self.is_valid_position(row - 1, col + 1) and self.board[row - 1, col + 1] != 'W':
-				self.set_value(row - 1, col + 1, "w")
-			if self.is_valid_position(row, col + 1) and self.board[row, col + 1] != 'W':
-				self.set_value(row, col + 1, "w")
-			if self.is_valid_position(row + 1, col + 1) and self.board[row + 1, col + 1] != 'W':
-				self.set_value(row + 1, col + 1, "w")
-			if self.is_valid_position(row + 1, col) and self.board[row + 1, col] != 'W':
-				self.set_value(row + 1, col, "w")
+			self.set_value(row + 1, col - 1, "w")
+			self.set_value(row, col - 1, "w")
+			self.set_value(row - 1, col - 1, "w")
+			self.set_value(row - 1, col, "w")
+			self.set_value(row - 1, col + 1, "w")
+			self.set_value(row, col + 1, "w")
+			self.set_value(row + 1, col + 1, "w")
+			self.set_value(row + 1, col, "w")
 			i += 1
 
 	def put_possible_parts(self):
