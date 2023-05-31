@@ -36,18 +36,21 @@ class BimaruState:
 class Board:
 	"""Representação interna de um tabuleiro de Bimaru."""
 
-	def __init__(self, board, row_vals = [], col_vals = []):
+	def __init__(self, board, row_vals = [], col_vals = [], subs = 0):
 		self.board = board
 		self.size = 10
 		self.rowvals = row_vals
 		self.colvals = col_vals
+		# Index is the boat length
+		self.boats_left = [0, 4 - subs, 3, 2, 1]
 
 	def get_value(self, row: int, col: int) -> str:
 		"""Devolve o valor na respetiva posição do tabuleiro."""
-		return self.board[row][col]
+		if self.is_valid_position(row, col):
+			return self.board[row][col]
 
 	def set_value(self, row: int, col: int, value: int):
-		if row >= 0 and row < self.size and col >= 0 and col < self.size:
+		if self.is_valid_position(row, col):
 			self.board[row][col] = value
 
 	def adjacent_vertical_values(self, row: int, col: int) -> (str, str):
@@ -55,22 +58,18 @@ class Board:
 		respectivamente."""
 		if(row == 0):
 			top = None
-			bottom = self.get_value(row + 1, col)
+			bottom = self.get_value(row + 1, col).upper()
 		elif(row == self.size - 1):
 			bottom = None
-			top = self.get_value(row - 1, col)
+			top = self.get_value(row - 1, col).upper()
 		else:
-			top = self.get_value(row -1 , col)
-			bottom = self.get_value(row + 1, col)
+			top = self.get_value(row -1 , col).upper()
+			bottom = self.get_value(row + 1, col).upper()
 
-		if top == ' ' or top == 'W':
+		if(top == ' ' or top == 'W'):
 			top = None
-		elif top == 'w' :
-			top = 'w'
-		if bottom == ' ' or bottom == 'W':
+		if(bottom == ' ' or bottom == 'W'):
 			bottom = None
-		elif bottom == 'w' :
-			bottom = 'w'
 
 		return (top, bottom)
 
@@ -79,22 +78,19 @@ class Board:
 		respectivamente."""
 		if(col == 0):
 			left = None
-			right = self.get_value(row, col + 1)
+			right = self.get_value(row, col + 1).upper()
 		elif(col == self.size - 1):
 			right = None
-			left = self.get_value(row, col - 1)
+			left = self.get_value(row, col - 1).upper()
 		else:
-			left = self.get_value(row, col - 1)
-			right = self.get_value(row, col + 1)
+			left = self.get_value(row, col - 1).upper()
+			right = self.get_value(row, col + 1).upper()
 
-		if left == ' ' or left == 'W':
+		if(left == ' ' or left == 'W'):
 			left = None
-		elif left == 'w':
-			left = 'w'
-		if right == ' ' or right == 'W':
+		if(right == ' ' or right == 'W'):
 			right = None
-		elif right == 'w':
-			right = 'w' 
+
 		return (left, right)
 
 
@@ -118,13 +114,16 @@ class Board:
 		vals_col = [int(x) for x in inp_col.split()[1:]]
 
 		num_hints = int(input())
+		subs = 0
 		for i in range(num_hints):
 			line = sys.stdin.readline().split()
 			matrix[int(line[1])][int(line[2])] = str(line[3])
+			if(line[3] == "C"):
+				subs += 1
 
 		# adicionar atributos aqui e possivel board.new_attr = uu
 
-		return Board(matrix, vals_row, vals_col)
+		return Board(matrix, vals_row, vals_col, subs)
 
 	def print_board(self):
 		print(self.board)
@@ -133,10 +132,10 @@ class Board:
 
 	def fill_the_board(self):
 		self.put_line_waters()
-		self.put_possible_parts()
 		self.put_water_around_boat()
+		self.put_possible_parts()
 		self.fill_occupied_rows()
-		self.complete_possible_boats()
+		#self.complete_possible_boats()
 		self.update()
 		self.complete_boat()
 
@@ -406,7 +405,7 @@ class Board:
 								self.set_value(i, j, 'c')		
 				j += 1
 			i += 1
-
+	
 	def update(self):
 		i = 0
 		while i < self.size:
@@ -474,226 +473,281 @@ class Board:
 			while j < self.size:
 				if self.get_value(i, j) == 'X':
 					#one
-					if self.adjacent_vertical_values(i, j) == (None, None) and self.adjacent_horizontal_values(i, j) == (None, None):
+					if self.adjacent_vertical_values(i, j) == (None, None) and \
+					 self.adjacent_horizontal_values(i, j) == (None, None):
 						self.set_value(i, j, 'c')
+						self.boats_left[1] -= 1
 					# VERTICAL T X
-					elif self.adjacent_vertical_values(i, j) == ('T', None) or self.adjacent_vertical_values(i, j) == ('t', None):
+					elif self.adjacent_vertical_values(i, j) == ('T', None):
 						self.set_value(i, j, 'b')
+						self.boats_left[2] -= 1
 					# VERTICAL X B
-					elif self.adjacent_vertical_values(i, j) == (None, 'B') or self.adjacent_vertical_values(i, j) == (None, 'b'):
+					elif self.adjacent_vertical_values(i, j) == (None, 'B'):
 						self.set_value(i, j, 't')
+						self.boats_left[2] -= 1
 					# HORIZONTAL L X
-					elif self.adjacent_horizontal_values(i, j) == ('L', None) or self.adjacent_horizontal_values(i, j) == ('l', None):
+					elif self.adjacent_horizontal_values(i, j) == ('L', None):
 						self.set_value(i, j, 'r')
+						self.boats_left[2] -= 1
 					# HORIZONTAL X R
-					elif self.adjacent_horizontal_values(i, j) == (None, 'R') or self.adjacent_horizontal_values(i, j) == (None, 'r'):
+					elif self.adjacent_horizontal_values(i, j) == (None, 'R'):
 						self.set_value(i, j, 'l')
+						self.boats_left[2] -= 1
 					# VERTICAL X X
-					elif self.adjacent_vertical_values(i, j) == (None, 'X') and self.adjacent_vertical_values(i + 1, j) == ('X', None):
+					elif self.adjacent_vertical_values(i, j) == (None, 'X') and \
+					 self.adjacent_vertical_values(i + 1, j) == ('X', None):
 						self.set_value(i, j, 't')
 						self.set_value(i + 1, j, 'b')
+						self.boats_left[2] -= 1
 					# HORIZONTAL X X
-					elif self.adjacent_horizontal_values(i, j) == (None, 'X') and self.adjacent_horizontal_values(i, j + 1) == ('X', None):
+					elif self.adjacent_horizontal_values(i, j) == (None, 'X') and \
+					 self.adjacent_horizontal_values(i, j + 1) == ('X', None):
 						self.set_value(i, j, 'l')
 						self.set_value(i, j + 1, 'r')
+						self.boats_left[2] -= 1
 					# VERTICAL X X X
-					elif self.adjacent_vertical_values(i, j) == (None, 'X') and self.adjacent_vertical_values(i + 1, j) == ('X', 'X') \
-					 and self.adjacent_vertical_values(i + 2, j) == ('X', None):
+					elif self.adjacent_vertical_values(i, j) == (None, 'X') and \
+					 self.adjacent_vertical_values(i + 1, j) == ('X', 'X') and \
+					 self.adjacent_vertical_values(i + 2, j) == ('X', None):
 						self.set_value(i, j, 't')
 						self.set_value(i + 1, j, 'm')
 						self.set_value(i + 2, j, 'b')
+						self.boats_left[3] -= 1
 					# HORIZONTAL X X X
-					elif self.adjacent_horizontal_values(i, j) == (None, 'X') and self.adjacent_horizontal_values(i, j + 1) == ('X', 'X') \
-					 and self.adjacent_horizontal_values(i, j + 2) == ('X', None):
+					elif self.adjacent_horizontal_values(i, j) == (None, 'X') and \
+					 self.adjacent_horizontal_values(i, j + 1) == ('X', 'X') and \
+					 self.adjacent_horizontal_values(i, j + 2) == ('X', None):
 						self.set_value(i, j, 'l')
 						self.set_value(i, j + 1, 'm')
 						self.set_value(i, j + 2, 'r')
+						self.boats_left[3] -= 1
 					# VERTICAL X X X X
-					elif self.adjacent_vertical_values(i, j) == (None, 'X') and self.adjacent_vertical_values(i + 1, j) == ('X', 'X') \
-					 and self.adjacent_vertical_values(i + 2, j) == ('X', 'X') and self.adjacent_vertical_values(i + 3, j) == ('X', None):
+					elif self.adjacent_vertical_values(i, j) == (None, 'X') and \
+					 self.adjacent_vertical_values(i + 1, j) == ('X', 'X') and \
+					 self.adjacent_vertical_values(i + 2, j) == ('X', 'X') and \
+					 self.adjacent_vertical_values(i + 3, j) == ('X', None):
 						self.set_value(i, j, 't')
 						self.set_value(i + 1, j, 'm')
 						self.set_value(i + 2, j, 'm')
 						self.set_value(i + 3, j, 'b')
+						self.boats_left[4] -= 1
 					# HORIZONTAL X X X X
-					elif self.adjacent_horizontal_values(i, j) == (None, 'X') and self.adjacent_horizontal_values(i, j + 1) == ('X', 'X') \
-					 and self.adjacent_horizontal_values(i, j + 2) == ('X', 'X') and self.adjacent_horizontal_values(i, j + 3) == ('X', None):
-						self.set_value(i, j, 'l')
-						self.set_value(i, j + 1, 'm')
-						self.set_value(i, j + 2, 'm')
-						self.set_value(i, j+ 3, 'r')
-					# VERTICAL T X X
-					elif (self.adjacent_vertical_values(i, j) == ('T', 'X') or self.adjacent_vertical_values(i, j) == ('t', 'X')) \
-					 and self.adjacent_vertical_values(i + 1, j) == ('X', None):
-						self.set_value(i, j, 'm')
-						self.set_value(i + 1, j, 'b')
-					# VERTICAL T M X
-					elif (self.adjacent_vertical_values(i, j) == ('M', None) or self.adjacent_vertical_values(i, j) == ('m', None)) \
-					 and (self.adjacent_vertical_values(i - 1, j) == ('T', 'X') or self.adjacent_vertical_values(i - 1, j) == ('t', 'X')):
-						self.set_value(i, j, 'b')
-					# VERTICAL X X B
-					elif self.adjacent_vertical_values(i, j) == (None, 'X') and (self.adjacent_vertical_values(i + 1, j) == ('X', 'B') \
-					 or self.adjacent_vertical_values(i + 1, j) == ('X', 'b')):
-						self.set_value(i, j, 't')
-						self.set_value(i + 1, j, 'm')
-					# VERTICAL X M B
-					elif (self.adjacent_vertical_values(i, j) == (None, 'M') or self.adjacent_vertical_values(i, j) == (None, 'm')) \
-					 and (self.adjacent_vertical_values(i + 1, j) == ('X', 'B') or self.adjacent_vertical_values(i + 1, j) == ('X', 'b')):
-						self.set_value(i, j, 't')
-					# VERTICAL T X X X
-					elif (self.adjacent_vertical_values(i, j) == ('T', 'X') or self.adjacent_vertical_values(i, j) == ('t', 'X')) \
-					 and self.adjacent_vertical_values(i + 1, j) == ('X', 'X') and self.adjacent_vertical_values(i + 2, j) == ('X', None):
-						self.set_value(i, j, 'm')
-						self.set_value(i + 1, j, 'm')
-						self.set_value(i + 2, j, 'b')
-					# VERTICAL T M X X
-					elif (self.adjacent_vertical_values(i, j) == ('M', 'X') or self.adjacent_vertical_values(i, j) == ('m', 'X')) \
-					 and self.adjacent_vertical_values(i + 1, j) == ('X', None) and (self.adjacent_vertical_values(i - 1, j) == ('T', 'X') \
-					 or self.adjacent_vertical_values(i - 1, j) == ('t', 'X')):
-						self.set_value(i, j, 'm')
-						self.set_value(i + 1, j, 'b')
-					# VERTICAL T M M X
-					elif (self.adjacent_vertical_values(i, j) == ('M', None) or self.adjacent_vertical_values(i, j) == ('m', None)) \
-					 and (self.adjacent_vertical_values(i - 1, j) == ('M', 'X') or self.adjacent_vertical_values(i - 1, j) == ('m', 'X')) \
-					 and (self.adjacent_vertical_values(i - 2, j) == ('T', 'M') or self.adjacent_vertical_values(i - 2, j) == ('T', 'm') \
-					 or self.adjacent_vertical_values(i - 2, j) == ('t', 'M') or self.adjacent_vertical_values(i - 2, j) == ('t', 'm')) \
-					 and (self.adjacent_vertical_values(i - 3, j) == (None, 'M') or self.adjacent_vertical_values(i - 3, j) == (None, 'm')):
-						self.set_value(i, j, 'b')
-					# VERTICAL X X X B
-					elif self.adjacent_horizontal_values(i, j) == (None, 'X') and self.adjacent_vertical_values(i + 1, j) == ('X', 'X') \
-					 and (self.adjacent_horizontal_values(i + 2, j) == ('X', 'B') or self.adjacent_vertical_values(i + 2, j) == ('X', 'b')):
-						self.set_value(i, j, 't')
-						self.set_value(i + 1, j, 'm')
-						self.set_value(i + 2, j, 'm')
-					# VERTICAL X X M B
-					elif self.adjacent_vertical_values(i, j) == (None, 'X') and (self.adjacent_vertical_values(i + 1, j) == ('X', 'M') \
-					 or self.adjacent_vertical_values(i + 1, j) == ('X', 'm')) and (self.adjacent_vertical_values(i + 2, j) == ('X', 'B') \
-					 or self.adjacent_vertical_values(i + 2, j) == ('X', 'b')) and (self.adjacent_vertical_values(i + 3, j) == ('M', None) \
-					 or self.adjacent_vertical_values(i + 3, j) == ('m', None)):
-						self.set_value(i, j, 't')
-						self.set_value(i + 1, j ,'m')
-					# VERTICAL X M M B
-					elif (self.adjacent_vertical_values(i, j) == (None, 'M') or self.adjacent_vertical_values(i, j) == (None, 'm')) \
-					 and (self.adjacent_vertical_values(i + 1, j) == ('X', 'M') or self.adjacent_vertical_values(i + 1, j) == ('X', 'm')) \
-					 and (self.adjacent_vertical_values(i + 2, j) == ('M', 'B') or self.adjacent_vertical_values(i + 2, j) == ('m', 'B') or \
-					 self.adjacent_vertical_values(i + 2, j) == ('M', 'b') or self.adjacent_vertical_values(i + 2, j) == ('m', 'b')) \
-					 and (self.adjacent_vertical_values(i + 3, j) == ('M', None) or self.adjacent_vertical_values(i + 3, j) == ('m', None)):
-						self.set_value(i, j, 't')
-					# HORIZONTAL X M R
-					elif (self.adjacent_horizontal_values(i, j) == (None, 'M') or self.adjacent_horizontal_values(i, j) == (None, 'm')) and \
-					 (self.adjacent_horizontal_values(i, j + 1) == ('M', None) or self.adjacent_horizontal_values(i, j + 1) == ('m', None)):
-					 	self.set_value(i, j, 'l')
-					# HORIZONTAL X X R
-					elif self.adjacent_horizontal_values(i, j) == (None, 'X') and (self.adjacent_horizontal_values(i, j + 1) == ('X', 'R') \
-					 or self.adjacent_horizontal_values(i, j + 1) == ('X', 'r')) and self.adjacent_horizontal_values(i, j + 2) == ('X', None):
-						self.set_value(i, j, 'l')
-						self.set_value(i, j, 'm')
-					# HORIZONTAL L X X
-					elif (self.adjacent_horizontal_values(i, j) == ('L', 'X') or self.adjacent_horizontal_values(i, j) == ('l', 'X')) and \
-					 self.adjacent_horizontal_values(i, j + 1) == ('X', None) and self.adjacent_horizontal_values(i, j - 1) == (None, 'X'):
-						self.set_value(i, j, 'm')
-						self.set_value(i, j + 1, 'r')
-					# HORIZONTAL L M X
-					elif (self.adjacent_horizontal_values(i, j) == ('M', None) or self.adjacent_horizontal_values(i, j) == ('m', None)) and \
-					 (self.adjacent_horizontal_values(i, j - 1) == ('L', 'X') or self.adjacent_horizontal_values(i, j - 1) == ('l', 'X')) \
-					 and (self.adjacent_horizontal_values(i, j - 2) == (None, 'M') or self.adjacent_horizontal_values(i, j - 2) == (None, 'm')):
-					 	self.set_value(i, j, 'r')
-					# HORIZONTAL X M M R
-					elif (self.adjacent_horizontal_values(i, j) == (None, 'M') or self.adjacent_horizontal_values(i, j) == (None, 'm')) \
-					 and (self.adjacent_horizontal_values(i, j + 1) == ('X', 'M') or self.adjacent_horizontal_values(i, j + 1) == ('X', 'm')) \
-					 and (self.adjacent_horizontal_values(i, j + 2) == ('M', 'R') or self.adjacent_horizontal_values(i, j + 2) == ('m', 'R') \
-					 or self.adjacent_horizontal_values(i, j + 2) == ('M', 'r') or self.adjacent_horizontal_values(i, j + 2) == ('m', 'r')) \
-					 and (self.adjacent_horizontal_values(i, j + 3) == ('M', None) or self.adjacent_horizontal_values(i, j + 3) == ('m', None)):
-					 	self.set_value(i, j, 'l')
-					# HORIZONTAL X X M R
-					elif self.adjacent_horizontal_values(i, j) == (None, 'X') and (self.adjacent_horizontal_values(i, j + 1) == ('X', 'M') or \
-					 self.adjacent_horizontal_values(i, j + 1) == ('X', 'm')) and (self.adjacent_horizontal_values(i, j + 2) == ('X', 'R') or \
-					 self.adjacent_horizontal_values(i, j + 2) == ('X', 'r')) and (self.adjacent_horizontal_values(i, j + 3) == ('M', None) or \
-					 self.adjacent_horizontal_values(i, j+ 3) == ('m', None)):
-						self.set_value(i, j, 'l')
-						self.set_value(i, j + 1, 'm')
-					# HORIZONTAL X X X R
-					elif self.adjacent_horizontal_values(i, j) == (None, 'X') and self.adjacent_horizontal_values(i, j + 1) == ('X', 'X') and \
-					 (self.adjacent_horizontal_values(i, j + 2) == ('X', 'R') or self.adjacent_horizontal_values(i, j + 2) == ('X', 'r')) and \
+					elif self.adjacent_horizontal_values(i, j) == (None, 'X') and \
+					 self.adjacent_horizontal_values(i, j + 1) == ('X', 'X') and \
+					 self.adjacent_horizontal_values(i, j + 2) == ('X', 'X') and \
 					 self.adjacent_horizontal_values(i, j + 3) == ('X', None):
 						self.set_value(i, j, 'l')
 						self.set_value(i, j + 1, 'm')
 						self.set_value(i, j + 2, 'm')
+						self.set_value(i, j+ 3, 'r')
+						
+						self.boats_left[4] -= 1
+					# VERTICAL T X X
+					elif self.adjacent_vertical_values(i, j) == ('T', 'X') and \
+					 self.adjacent_vertical_values(i + 1, j) == ('X', None):
+						self.set_value(i, j, 'm')
+						self.set_value(i + 1, j, 'b')
+						self.boats_left[3] -= 1
+					# VERTICAL T M X
+					elif self.adjacent_vertical_values(i, j) == ('M', None) and \
+					 self.adjacent_vertical_values(i - 1, j) == ('T', 'X'):
+						self.set_value(i, j, 'b')
+						self.boats_left[3] -= 1
+					# VERTICAL X X B
+					elif self.adjacent_vertical_values(i, j) == (None, 'X') and \
+					 self.adjacent_vertical_values(i + 1, j) == ('X', 'B'):
+						self.set_value(i, j, 't')
+						self.set_value(i + 1, j, 'm')
+						self.boats_left[3] -= 1
+					# VERTICAL X M B
+					elif self.adjacent_vertical_values(i, j) == (None, 'M') and \
+					 self.adjacent_vertical_values(i + 1, j) == ('X', 'B'):
+						self.set_value(i, j, 't')
+						self.boats_left[3] -= 1
+					# VERTICAL T X X X
+					elif self.adjacent_vertical_values(i, j) == ('T', 'X') and \
+					 self.adjacent_vertical_values(i + 1, j) == ('X', 'X') and \
+					 self.adjacent_vertical_values(i + 2, j) == ('X', None):
+						self.set_value(i, j, 'm')
+						self.set_value(i + 1, j, 'm')
+						self.set_value(i + 2, j, 'b')
+						self.boats_left[4] -= 1
+					# VERTICAL T M X X
+					elif self.adjacent_vertical_values(i, j) == ('M', 'X') and \
+					 self.adjacent_vertical_values(i + 1, j) == ('X', None) and \
+					 self.adjacent_vertical_values(i - 1, j) == ('T', 'X'):
+						self.set_value(i, j, 'm')
+						self.set_value(i + 1, j, 'b')
+						self.boats_left[4] -= 1
+					# VERTICAL T M M X
+					elif self.adjacent_vertical_values(i, j) == ('M', None) and \
+					 self.adjacent_vertical_values(i - 1, j) == ('M', 'X') and \
+					 self.adjacent_vertical_values(i - 2, j) == ('T', 'M') and \
+					 self.adjacent_vertical_values(i - 3, j) == (None, 'M'):
+						self.set_value(i, j, 'b')
+						self.boats_left[4] -= 1
+					# VERTICAL X X X B
+					elif self.adjacent_horizontal_values(i, j) == (None, 'X') and \
+					 self.adjacent_vertical_values(i + 1, j) == ('X', 'X') and \
+					 self.adjacent_horizontal_values(i + 2, j) == ('X', 'B'):
+						self.set_value(i, j, 't')
+						self.set_value(i + 1, j, 'm')
+						self.set_value(i + 2, j, 'm')
+						self.boats_left[4] -= 1
+					# VERTICAL X X M B
+					elif self.adjacent_vertical_values(i, j) == (None, 'X') and \
+					 self.adjacent_vertical_values(i + 1, j) == ('X', 'M') and \
+					 self.adjacent_vertical_values(i + 2, j) == ('X', 'B') and \
+					 self.adjacent_vertical_values(i + 3, j) == ('M', None):
+						self.set_value(i, j, 't')
+						self.set_value(i + 1, j ,'m')
+						self.boats_left[4] -= 1
+					# VERTICAL X M M B
+					elif self.adjacent_vertical_values(i, j) == (None, 'M') and \
+					 self.adjacent_vertical_values(i + 1, j) == ('X', 'M') and \
+					 self.adjacent_vertical_values(i + 2, j) == ('M', 'B') and \
+					 self.adjacent_vertical_values(i + 3, j) == ('M', None):
+						self.set_value(i, j, 't')
+						self.boats_left[4] -= 1
+					# HORIZONTAL X M R
+					elif self.adjacent_horizontal_values(i, j) == (None, 'M') and \
+					 self.adjacent_horizontal_values(i, j + 1) == ('M', None):
+						self.set_value(i, j, 'l')
+						self.boats_left[3] -= 1
+					# HORIZONTAL X X R
+					elif self.adjacent_horizontal_values(i, j) == (None, 'X') and \
+					 self.adjacent_horizontal_values(i, j + 1) == ('X', 'R') and \
+					 self.adjacent_horizontal_values(i, j + 2) == ('X', None):
+						self.set_value(i, j, 'l')
+						self.set_value(i, j, 'm')
+						self.boats_left[3] -= 1
+					# HORIZONTAL L X X
+					elif self.adjacent_horizontal_values(i, j) == ('L', 'X') and \
+					 self.adjacent_horizontal_values(i, j + 1) == ('X', None) and \
+					 self.adjacent_horizontal_values(i, j - 1) == (None, 'X'):
+						self.set_value(i, j, 'm')
+						self.set_value(i, j + 1, 'r')
+						self.boats_left[3] -= 1
+					# HORIZONTAL L M X
+					elif self.adjacent_horizontal_values(i, j) == ('M', None) and \
+					 self.adjacent_horizontal_values(i, j - 1) == ('L', 'X') and \
+					 self.adjacent_horizontal_values(i, j - 2) == (None, 'M'):
+						self.set_value(i, j, 'r')
+						self.boats_left[3] -= 1
+					# HORIZONTAL X M M R
+					elif self.adjacent_horizontal_values(i, j) == (None, 'M') and \
+					 self.adjacent_horizontal_values(i, j + 1) == ('X', 'M') and \
+					 self.adjacent_horizontal_values(i, j + 2) == ('M', 'R') and \
+					 self.adjacent_horizontal_values(i, j + 3) == ('M', None):
+						self.set_value(i, j, 'l')
+						self.boats_left[4] -= 1
+					# HORIZONTAL X X M R
+					elif self.adjacent_horizontal_values(i, j) == (None, 'X') and \
+					 self.adjacent_horizontal_values(i, j + 1) == ('X', 'M')  and \
+					 self.adjacent_horizontal_values(i, j + 2) == ('X', 'R') and \
+					 self.adjacent_horizontal_values(i, j + 3) == ('M', None):
+						self.set_value(i, j, 'l')
+						self.set_value(i, j + 1, 'm')
+						self.boats_left[4] -= 1
+					# HORIZONTAL X X X R
+					elif self.adjacent_horizontal_values(i, j) == (None, 'X') and \
+					 self.adjacent_horizontal_values(i, j + 1) == ('X', 'X') and \
+					 self.adjacent_horizontal_values(i, j + 2) == ('X', 'R') and \
+					 self.adjacent_horizontal_values(i, j + 3) == ('X', None):
+						self.set_value(i, j, 'l')
+						self.set_value(i, j + 1, 'm')
+						self.set_value(i, j + 2, 'm')
+						self.boats_left[4] -= 1
 					# HORIZONTAL L X X X
-					elif (self.adjacent_horizontal_values(i, j) == ('L', 'X') or self.adjacent_horizontal_values(i, j) == ('l', 'X')) and \
-					 self.adjacent_horizontal_values(i, j + 1) == ('X', 'X') and self.adjacent_horizontal_values(i, j + 2) == ('X', None) \
-					 and self.adjacent_horizontal_values(i, j - 1) == (None, 'X'):
+					elif self.adjacent_horizontal_values(i, j) == ('L', 'X') and \
+					 self.adjacent_horizontal_values(i, j + 1) == ('X', 'X') and \
+					 self.adjacent_horizontal_values(i, j + 2) == ('X', None) and \
+					 self.adjacent_horizontal_values(i, j - 1) == (None, 'X'):
 						self.set_value(i, j, 'm')
 						self.set_value(i, j + 1, 'm')
 						self.set_value(i, j + 2, 'r')
+						self.boats_left[4] -= 1
 					# HORIZONTAL L M X X
-					elif (self.adjacent_horizontal_values(i, j) == ('M', 'X') or self.adjacent_horizontal_values(i, j) == ('m', 'X')) and \
-					 self.adjacent_horizontal_values(i, j + 1) == ('X', 'X') and (self.adjacent_horizontal_values(i, j - 1) == ('L', 'X')  or \
-					 self.adjacent_horizontal_values(i, j - 1) == ('l', 'X')) and (self.adjacent_horizontal_values(i, j - 2) == (None, 'M') or \
-					 self.adjacent_horizontal_values(i, j - 2) == (None, 'm')):
+					elif self.adjacent_horizontal_values(i, j) == ('M', 'X') and \
+					 self.adjacent_horizontal_values(i, j + 1) == ('X', 'X') and \
+					 self.adjacent_horizontal_values(i, j - 1) == ('L', 'X') and \
+					 self.adjacent_horizontal_values(i, j - 2) == (None, 'M'):
 						self.set_value(i, j, 'm')
 						self.set_value(i, j + 1, 'r')
+						self.boats_left[4] -= 1
 					# HORIZONTAL L M M X
-					elif (self.adjacent_horizontal_values(i, j) == ('M', None) or self.adjacent_horizontal_values(i, j) == ('m', None)) and \
-					 (self.adjacent_horizontal_values(i, j - 1) == ('M', 'X') or self.adjacent_horizontal_values(i, j - 1) == ('m', 'X')) and \
-					 (self.adjacent_horizontal_values(i, j - 2) == ('L', 'M') or self.adjacent_horizontal_values(i, j - 2) == ('L', 'm') or \
-					 self.adjacent_horizontal_values(i, j - 2) == ('l', 'M') or self.adjacent_horizontal_values(i, j - 2) == ('l', 'm')) and \
-					 (self.adjacent_horizontal_values(i, j - 3) == (None, 'M') or self.adjacent_horizontal_values(i, j - 3) == (None, 'm')):
+					elif self.adjacent_horizontal_values(i, j) == ('M', None) and \
+					 self.adjacent_horizontal_values(i, j - 1) == ('M', 'X') and \
+					 self.adjacent_horizontal_values(i, j - 2) == ('L', 'M') and \
+					 self.adjacent_horizontal_values(i, j - 3) == (None, 'M'):
 						self.set_value(i, j, 'r')
+						self.boats_left[4] -= 1
 					# HORIZONTAL X X M X
-					elif self.adjacent_horizontal_values(i, j) == (None, 'X') and (self.adjacent_horizontal_values(i, j + 1) == ('X', 'M') or \
-					 self.adjacent_horizontal_values(i, j + 1) == ('X', 'm')) and self.adjacent_horizontal_values(i, j + 2) == ('X', 'X') and \
-					 (self.adjacent_horizontal_values(i, j + 3) == ('M', None) or self.adjacent_horizontal_values(i, j + 3) == ('m', None)):
+					elif self.adjacent_horizontal_values(i, j) == (None, 'X') and \
+					 self.adjacent_horizontal_values(i, j + 1) == ('X', 'M') and \
+					 self.adjacent_horizontal_values(i, j + 2) == ('X', 'X') and \
+					 self.adjacent_horizontal_values(i, j + 3) == ('M', None):
 						self.set_value(i, j, 'l')
 						self.set_value(i, j + 1, 'm')
 						self.set_value(i, j + 3, 'r')
+						self.boats_left[4] -= 1
 					# HORIZONTAL X M X X
-					elif (self.adjacent_horizontal_values(i, j) == (None, 'M') or self.adjacent_horizontal_values(i, j) == (None, 'm')) and \
-					 self.adjacent_horizontal_values(i, j + 1) == ('X','X') and (self.adjacent_horizontal_values(i, j + 2) == ('M', 'X') or \
-					 self.adjacent_horizontal_values(i, j + 2) == ('m', 'X')) and self.adjacent_horizontal_values(i, j + 3) == ('X', None):
+					elif self.adjacent_horizontal_values(i, j) == (None, 'M') and \
+					 self.adjacent_horizontal_values(i, j + 1) == ('X','X') and \
+					 self.adjacent_horizontal_values(i, j + 2) == ('M', 'X') and \
+					 self.adjacent_horizontal_values(i, j + 3) == ('X', None):
 						self.set_value(i, j, 'l')
 						self.set_value(i, j + 2, 'm')
 						self.set_value(i, j + 3, 'r')
+						self.boats_left[4] -= 1
 					# HORIZONTAL X M M X
-					elif (self.adjacent_horizontal_values(i, j) == (None, 'M') or self.adjacent_horizontal_values(i, j) == (None, 'm')) and \
-					 (self.adjacent_horizontal_values(i, j + 1) == ('X','M') or self.adjacent_horizontal_values(i, j + 1) == ('X', 'm')) and \
-					 (self.adjacent_horizontal_values(i, j + 2) == ('M', 'X') or self.adjacent_horizontal_values(i, j + 2) == ('m', 'X')) and \
-					 (self.adjacent_horizontal_values(i, j + 3) == ('M', None) or self.adjacent_horizontal_values(i, j + 3) == ('m', None)):
+					elif self.adjacent_horizontal_values(i, j) == (None, 'M') and \
+					 self.adjacent_horizontal_values(i, j + 1) == ('X','M') and \
+					 self.adjacent_horizontal_values(i, j + 2) == ('M', 'X') and \
+					 self.adjacent_horizontal_values(i, j + 3) == ('M', None):
 						self.set_value(i, j, 'l')
 						self.set_value(i, j + 3, 'r')
+						self.boats_left[4] -= 1
 					# VERTICAL X X M X
-					elif self.adjacent_vertical_values(i, j) == (None, 'X') and (self.adjacent_vertical_values(i + 1, j) == ('X', 'M') or \
-					 self.adjacent_vertical_values(i + 1, j) == ('X', 'm')) and self.adjacent_vertical_values(i + 2, j) == ('X', 'X') and \
-					 (self.adjacent_vertical_values(i + 3, j) == ('M', None) or self.adjacent_vertical_values(i + 3, j) == ('m', None)):
+					elif self.adjacent_vertical_values(i, j) == (None, 'X') and \
+					 self.adjacent_vertical_values(i + 1, j) == ('X', 'M') and \
+					 self.adjacent_vertical_values(i + 2, j) == ('X', 'X') and \
+					 self.adjacent_vertical_values(i + 3, j) == ('M', None):
 						self.set_value(i, j, 't')
 						self.set_value(i + 1, j, 'm')
 						self.set_value(i + 3, j, 'b')
+						self.boats_left[4] -= 1
 					# VERTICAL X M X X
-					elif (self.adjacent_vertical_values(i, j) == (None, 'M') or self.adjacent_vertical_values(i, j) == (None, 'm')) and \
-					 self.adjacent_vertical_values(i + 1, j) == ('X','X') and (self.adjacent_vertical_values(i + 2, j) == ('M', 'X') or \
-					 self.adjacent_vertical_values(i + 2, j) == ('m', 'X')) and self.adjacent_vertical_values(i + 3, j) == ('X', None):
+					elif self.adjacent_vertical_values(i, j) == (None, 'M') and \
+					 self.adjacent_vertical_values(i + 1, j) == ('X','X') and \
+					 self.adjacent_vertical_values(i + 2, j) == ('M', 'X') and \
+					 self.adjacent_vertical_values(i + 3, j) == ('X', None):
 						self.set_value(i, j, 't')
 						self.set_value(i + 2, j, 'm')
 						self.set_value(i + 3, j, 'b')
+						self.boats_left[4] -= 1
 					# VERTICAL X M M X
-					elif (self.adjacent_vertical_values(i, j) == (None, 'M') or self.adjacent_vertical_values(i, j) == (None, 'm')) and \
-					 (self.adjacent_vertical_values(i + 1, j) == ('X','M') or self.adjacent_vertical_values(i + 1, j) == ('X', 'm')) and \
-					 (self.adjacent_vertical_values(i + 2, j) == ('M', 'X') or self.adjacent_vertical_values(i + 2, j) == ('m', 'X')) and \
-					 (self.adjacent_vertical_values(i + 3, j) == ('M', None) or self.adjacent_vertical_values(i + 3, j) == ('m', None)):
+					elif self.adjacent_vertical_values(i, j) == (None, 'M') and \
+					 self.adjacent_vertical_values(i + 1, j) == ('X','M') and \
+					 self.adjacent_vertical_values(i + 2, j) == ('M', 'X') and \
+					 self.adjacent_vertical_values(i + 3, j) == ('M', None):
 						self.set_value(i, j, 't')
 						self.set_value(i + 3, j, 'b')
+						self.boats_left[4] -= 1
 					# VERTICAL X M X
-					elif (self.adjacent_vertical_values(i, j) == (None, 'M') or self.adjacent_vertical_values(i, j) == (None, 'm')) and \
-					 self.adjacent_vertical_values(i + 1, j) == ('X', 'X') and (self.adjacent_vertical_values(i + 2, j) == ('M', None) or \
-					 self.adjacent_vertical_values(i + 2, j) == ('m', None)):
+					elif self.adjacent_vertical_values(i, j) == (None, 'M') and \
+					 self.adjacent_vertical_values(i + 1, j) == ('X', 'X') and \
+					 self.adjacent_vertical_values(i + 2, j) == ('M', None):
 						self.set_value(i, j, 't')
 						self.set_value(i + 2, j, 'b')
+						self.boats_left[3] -= 1
 					# HORIZONTAL X M X
-					elif (self.adjacent_horizontal_values(i, j) == (None, 'M') or self.adjacent_horizontal_values(i, j) == (None, 'm')) and \
-					 self.adjacent_horizontal_values(i, j + 1) == ('X', 'X') and (self.adjacent_horizontal_values(i, j + 2) == ('M', None) or \
-					 self.adjacent_horizontal_values(i, j + 2) == ('m', None)):
+					elif self.adjacent_horizontal_values(i, j) == (None, 'M') and \
+					 self.adjacent_horizontal_values(i, j + 1) == ('X', 'X') and \
+					 self.adjacent_horizontal_values(i, j + 2) == ('M', None):
 						self.set_value(i, j, 'l')
 						self.set_value(i, j + 2, 'r')
+						self.boats_left[3] -= 1
 				j += 1
 
 			i += 1
@@ -784,6 +838,8 @@ if __name__ == "__main__":
 	#initial_state = BimaruState(board)
 	#result_state = problem.result(initial_state, (3, 3, 'w'))
 	board.print_board()
+	print(board.boats_left)
+	print("")
 	board.print_pretty_board()
 
 	
