@@ -8,6 +8,7 @@
 
 import sys
 import numpy as np
+import copy as cp
 from search import (
 	Problem,
 	Node,
@@ -41,6 +42,8 @@ class Board:
 		self.size = 10
 		self.rowvals = row_vals
 		self.colvals = col_vals
+		self.copyrow = cp.deepcopy(row_vals)
+		self.copycol = cp.deepcopy(col_vals)
 		# Index is the boat length
 		self.boats_left = [0, 4 - subs, 3, 2, 1]
 
@@ -128,7 +131,7 @@ class Board:
 	def print_board(self):
 		print(self.board)
 		print(" ")
-		print(self.rowvals, self.colvals)
+		print(self.rowvals, self.colvals, self.copyrow, self.copycol)
 
 	def fill_the_board(self):
 		self.put_line_waters()
@@ -814,6 +817,39 @@ class Bimaru(Problem):
 		pass
 
 	# TODO: outros metodos da classe
+	def is_goal(self):
+		parts = ['T', 't', 'M', 'm', 'B', 'b', 'C', 'c', 'L', 'l', 'R', 'r']
+		seen = []
+		all_parts = False
+		num_boats = {4: 1, 3: 2, 2: 3, 1: 4} #boat size : number boats
+		num_parts = 0
+
+		for i in range(10):
+			ship_count = sum(1 for cell in self.board[i] if cell != ' ')
+			if ship_count != self.copyrow[i]:
+				return False
+		
+		#for j in range(10):
+		#	ship_count = sum(1 for cell in self.board[:,j] if cell != ' ')
+		#	if ship_count != self.copyval[j]:
+		#			return False
+
+		for i in range(10):
+			for j in range(10):
+				val = self.board.get_value(i, j)
+				if val in parts:
+					seen.append(val)
+					num_parts += 1
+					if self.board.get_value(i, j) == 'c' or self.board.get_value(i, j) == 'C':
+						num_boats[1] -= 1
+					#if self.copyrow[i] == np.count_nonzero([elem in self.board[i] for elem in parts]) and \
+					# self.copycol[j] == np.count_nonzero([elem in board[:,j] for elem in parts]):
+					# 	pass
+						 
+
+		
+				
+
 
 
 if __name__ == "__main__":
