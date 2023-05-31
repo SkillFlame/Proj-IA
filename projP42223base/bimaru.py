@@ -436,11 +436,50 @@ class Board:
 						num_boats[boat_count] -= 1
 					boat_count = 0
 		
-		print(num_boats)
-		print(row_vals)
-		print(col_vals)
+		actions = []
+		boat_size = 4
+		while boat_size > 0:
+			if num_boats[boat_size] > 0:
+				for i in range(10):
+					row = self.board[i]
+					if(row_vals[i] + np.count_nonzero(row == 'X') >= boat_size):
+						count = 0
+						start = []
+						for j in range(10):
+							if row[j] == 'X' or row[j] == '?':
+								if count == 0:
+									start = [i, j]
+								count += 1
+							if row[j] == ' ':
+								if count >= boat_size:
+									actions.append((boat_size, start[0], start[1], "h"))
+								count = 0
+						if count >= boat_size:	
+							actions.append((boat_size, start[0], start[1], "h"))
+				
+				for i in range(10):
+					col = self.board[:, i]
+					if(col_vals[i] + np.count_nonzero(col == 'X') >= boat_size):
+						count = 0
+						start = []
+						for j in range(10):
+							if col[j] == 'X' or col[j] == '?':
+								if count == 0:
+									start = [j, i]
+								count += 1
+							if col[j] == ' ':
+								if count >= boat_size:
+									actions.append((boat_size, start[0], start[1], "v"))
+								count = 0
+						if count >= boat_size:
+							actions.append((boat_size, start[0], start[1], "v"))
+			boat_size -= 1
+		print(sorted(actions, reverse=True, key=self.sort_aux))
 
+		return sorted(actions, reverse=True, key=self.sort_aux)
 
+	def sort_aux(self, list):
+		return list[0]
 
 
 	def update(self):
@@ -807,7 +846,7 @@ class Bimaru(Problem):
 	def is_goal(self, board):
 		num_boats = [0, 4, 3, 2, 1] #boat size : number boats
 
-		if self.board.count_nonzero('X') != 20:
+		if np.count_nonzero(self.board == 'X') != 20:
 			return False
 
 		for i in range(10):
@@ -815,9 +854,11 @@ class Bimaru(Problem):
 			x_count = 0
 			boat_count = 0
 			for j in range(10):
+				if row[j] == 'X':
+					x_count += 1
+
 				if row[j] == 'X' and self.board.adjacent_vertical_values(i, j) == (None, None):
 					boat_count += 1
-					x_count += 1
 				elif row[j] == ' ' and boat_count != 0:
 					num_boats[boat_count] -= 1
 					boat_count = 0
@@ -832,9 +873,11 @@ class Bimaru(Problem):
 			x_count = 0
 			boat_count = 0
 			for j in range(10):
+				if col[j] == 'X':
+					x_count += 1
+				
 				if col[j] == 'X' and self.board.adjacent_horizontal_values(j, i) == (None, None):
 					boat_count += 1
-					x_count += 1
 				elif col[j] == ' ' and boat_count != 0:
 					if boat_count > 1:
 						num_boats[boat_count] -= 1
