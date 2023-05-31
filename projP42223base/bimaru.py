@@ -37,7 +37,7 @@ class BimaruState:
 class Board:
 	"""Representação interna de um tabuleiro de Bimaru."""
 
-	def __init__(self, board, row_vals = [], col_vals = [], subs = 0, copyhints = []):
+	def __init__(self, board, row_vals = [], col_vals = [], copyhints = []):
 		self.board = board
 		self.size = 10
 		self.rowvals = row_vals
@@ -46,7 +46,7 @@ class Board:
 		self.copycol = cp.deepcopy(col_vals)
 		self.copyhints = copyhints
 		# Index is the boat length
-		self.boats_left = [0, 4 - subs, 3, 2, 1]
+		self.boats_left = [0, 4, 3, 2, 1]
 
 	def get_value(self, row: int, col: int) -> str:
 		"""Devolve o valor na respetiva posição do tabuleiro."""
@@ -124,12 +124,10 @@ class Board:
 			line = sys.stdin.readline().split()
 			copyhints.append(line)
 			matrix[int(line[1])][int(line[2])] = str(line[3])
-			if(line[3] == "C"):
-				subs += 1
 
 		# adicionar atributos aqui e possivel board.new_attr = uu
 
-		return Board(matrix, vals_row, vals_col, subs, copyhints)
+		return Board(matrix, vals_row, vals_col, copyhints)
 
 	def print_board(self):
 		print(self.board)
@@ -143,8 +141,8 @@ class Board:
 		self.put_water_around_boat()
 		self.fill_occupied_rows()
 		self.complete_possible_boats()
-		self.complete_boat()
-		self.update()
+		#self.complete_boat()
+		#self.update()
 
 
 	def put_line_waters(self):
@@ -752,34 +750,13 @@ class Bimaru(Problem):
 
 	# TODO: outros metodos da classe
 	def is_goal(self):
-		parts = ['T', 't', 'M', 'm', 'B', 'b', 'C', 'c', 'L', 'l', 'R', 'r']
-		seen = []
-		all_parts = False
 		num_boats = {4: 1, 3: 2, 2: 3, 1: 4} #boat size : number boats
-		num_parts = 0
 
 		for i in range(10):
-			ship_count = sum(1 for cell in self.board[i] if cell != ' ')
-			if ship_count != self.copyrow[i]:
-				return False
-		
-		#for j in range(10):
-		#	ship_count = sum(1 for cell in self.board[:,j] if cell != ' ')
-		#	if ship_count != self.copyval[j]:
-		#			return False
-
-		for i in range(10):
+			row = self.board[i]
 			for j in range(10):
-				val = self.board.get_value(i, j)
-				if val in parts:
-					seen.append(val)
-					num_parts += 1
-					if self.board.get_value(i, j) == 'c' or self.board.get_value(i, j) == 'C':
-						num_boats[1] -= 1
-					#if self.copyrow[i] == np.count_nonzero([elem in self.board[i] for elem in parts]) and \
-					# self.copycol[j] == np.count_nonzero([elem in board[:,j] for elem in parts]):
-					# 	pass
-						 
+				#if row[j] == 'X' and self.board.adjacent_vertical_values(i, j) == (None, None):
+				pass
 
 		
 				
