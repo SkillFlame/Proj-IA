@@ -43,6 +43,8 @@ class Board:
 		self.rowvals = row_vals
 		self.colvals = col_vals
 		self.copyhints = copyhints
+		self.copyrow = cp.deepcopy(self.rowvals)
+		self.copycol = cp.deepcopy(self.colvals)
 		# Index is the boat length
 		self.boats_left = [0, 4, 3, 2, 1]
 
@@ -140,8 +142,8 @@ class Board:
 		self.fill_occupied_rows()
 		self.complete_possible_boats()
 		self.get_actions()
-		#self.complete_boat()
-		#self.update()
+		#self.apply_actions((3,6,1,'h'))
+		#self.apply_actions((3,2,1,'v'))
 
 
 	def put_line_waters(self):
@@ -398,9 +400,9 @@ class Board:
 	
 
 	def get_actions(self):
-		num_boats = [0, 4, 3, 2, 1] #boat size : number boats
-		row_vals = cp.deepcopy(self.rowvals)
-		col_vals = cp.deepcopy(self.colvals)
+		num_boats = [0, 4, 3, 2, 1] #number_boats[boat_size]
+		row_vals = self.copyrow#cp.deepcopy(self.rowvals)
+		col_vals = self.copycol#cp.deepcopy(self.colvals)
 
 
 		for i in range(10):
@@ -836,6 +838,50 @@ class Board:
 					row_str += matrix[i][j]
 			print(row_str)
 
+	def apply_actions(self, action):
+		boat_size = action[0]
+		row_val = action[1]
+		col_val = action[2]
+		direction = action[3]
+
+		if direction == 'v':
+			i = row_val
+			while i < boat_size + row_val:
+				if self.get_value(i, col_val) == '?':
+					self.set_value(i, col_val, 'X')
+					self.copyrow[i] -= 1
+					self.copycol[col_val] -= 1
+				i += 1
+		elif direction == 'h':
+			i = col_val
+			while i < boat_size + col_val:
+				if self.get_value(row_val, i) == '?':
+					self.set_value(row_val, i, 'X')
+					self.copyrow[row_val] -= 1
+					self.copycol[i] -= 1
+				i += 1
+		self.fill_with_search() # novo barco posto, se preencher linha/coluna chamar isto
+		#self.put_water_around_boat() # novo barco posto e, por aguas a volta dos X introduzidos
+
+	def fill_with_search(self):
+		i = 0
+		parts = ['?', 'X']
+		while i < self.size:
+			j = 0
+			while j < self.size:
+				num_parts_line = np.count_nonzero(np.char.strip(self.board[i]) == np.array(parts)[:, None])
+				if self.rowvals[i] == num_parts_line:
+					if self.get_value(i, j) == '?':
+						self.set_value(i, j, ' ')
+				num_parts_col = np.count_nonzero(np.char.strip(self.board[:, j]) == np.array(parts)[:, None])
+				if self.colvals[j] == num_parts_col:
+					if self.get_value(i, j) == '?':
+						self.set_value(i, j, ' ')
+
+				j += 1
+			i += 1
+	
+
 	# TODO: outros metodos da classe
 
 class Bimaru(Problem):
@@ -845,8 +891,6 @@ class Bimaru(Problem):
 		#criar um board para criar um state
 		self.initial = BimaruState(board)
 		self.board = board
-		#self.goal = goal
-		pass
 
 	def actions(self, state: BimaruState) -> list:
 		"""Retorna uma lista de ações que podem ser executadas a
@@ -861,16 +905,10 @@ class Bimaru(Problem):
 		self.actions(state)."""
 		# TODO
 
-		if action == 4:
-			pass
-		elif action == 3:
-			pass
-		elif action == 2:
-			pass
-		elif action == 1:
-			pass
-		else:
-			pass
+		acts = self.actions(state)
+		# aplicar action ao estado
+		new_state = cp.deepcopy(state)
+		return new_state
 
 	def goal_test(self, state: BimaruState):
 		"""Retorna True se e só se o estado passado como argumento é
@@ -941,21 +979,15 @@ if __name__ == "__main__":
 	# Imprimir para o standard output no formato indicado.
 	board = Board.parse_instance()
 
-
-	#print(board.adjacent_vertical_values(3, 3))
-	#print(board.adjacent_horizontal_values(3, 3))
-	#print(board.adjacent_vertical_values(1, 0))
-	#print(board.adjacent_horizontal_values(1, 0))
-
 	board.fill_the_board()
-	#print(" ")
-
 	
 	problem = Bimaru(board)
-	#initial_state = BimaruState(board)
-	#result_state = problem.result(initial_state, (3, 3, 'w'))
+	#goal_node = depth_first_tree_search(problem)
+	
 	board.print_board()
-	print(board.boats_left)
+	#problem.board.complete_boat()
+	#problem.board.update()
+	#print(board.boats_left)
 	print("")
 	board.print_pretty_board()
 
