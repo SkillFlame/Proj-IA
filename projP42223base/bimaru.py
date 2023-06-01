@@ -443,39 +443,80 @@ class Board:
 				for i in range(10):
 					row = self.board[i]
 					if(row_vals[i] + np.count_nonzero(row == 'X') >= boat_size):
-						count = 0
+						x_count = 0
+						empty_count = 0
 						start = []
 						for j in range(10):
-							if row[j] == 'X' or row[j] == '?':
-								if count == 0:
+							if x_count < boat_size and empty_count + x_count == boat_size and j < 9 and row[j + 1] != 'X':
+								actions.append((boat_size, start[0], start[1], "h"))
+								x_count = 0
+								empty_count = 0
+							elif x_count > boat_size:
+								x_count = 0
+								empty_count = 0
+							
+							if row[j] == 'X':
+								if x_count == 0 and empty_count == 0:
 									start = [i, j]
-								count += 1
-							if row[j] == ' ':
-								if count >= boat_size:
-									actions.append((boat_size, start[0], start[1], "h"))
-								count = 0
-						if count >= boat_size:	
+								x_count += 1
+							elif row[j] == '?':
+								if x_count == 0 and empty_count == 0:
+									start = [i, j]
+								empty_count += 1
+							elif row[j] == ' ':
+								if x_count < boat_size and empty_count + x_count >= boat_size:
+									offset = (empty_count + x_count) - boat_size
+									if empty_count - offset <= row_vals[i]:
+										actions.append((boat_size, start[0], start[1] + offset, "h"))
+								x_count = 0
+								empty_count = 0
+
+							if x_count < boat_size and empty_count + x_count == boat_size and j < 9 and row[j + 1] != 'X':
+								actions.append((boat_size, start[0], start[1], "h"))
+								x_count = 0
+								empty_count = 0
+							elif x_count > boat_size:
+								x_count = 0
+								empty_count = 0
+							
+						if x_count < boat_size and empty_count + x_count == boat_size:	
 							actions.append((boat_size, start[0], start[1], "h"))
 				
 				for i in range(10):
 					col = self.board[:, i]
 					if(col_vals[i] + np.count_nonzero(col == 'X') >= boat_size):
-						count = 0
+						x_count = 0
+						empty_count = 0
 						start = []
 						for j in range(10):
-							if col[j] == 'X' or col[j] == '?':
-								if count == 0:
+
+							if col[j] == 'X':
+								if x_count == 0 and empty_count == 0:
 									start = [j, i]
-								count += 1
-							if col[j] == ' ':
-								if count >= boat_size:
-									actions.append((boat_size, start[0], start[1], "v"))
-								count = 0
-						if count >= boat_size:
+								x_count += 1
+							elif col[j] == '?':
+								if x_count == 0 and empty_count == 0:
+									start = [j, i]
+								empty_count += 1
+							elif col[j] == ' ':
+								if x_count < boat_size and empty_count + x_count >= boat_size:
+									offset = (empty_count + x_count) - boat_size
+									if empty_count - offset <= col_vals[i]:
+										actions.append((boat_size, start[0] + offset, start[1], "v"))
+								x_count = 0
+								empty_count = 0
+							
+							if x_count < boat_size and empty_count + x_count == boat_size and j < 9 and col[j + 1] != 'X':
+								actions.append((boat_size, start[0], start[1], "v"))
+								x_count = 0
+								empty_count = 0
+							elif x_count > boat_size:
+								x_count = 0
+								empty_count = 0
+						
+						if x_count < boat_size and empty_count + x_count == boat_size:
 							actions.append((boat_size, start[0], start[1], "v"))
 			boat_size -= 1
-		print(sorted(actions, reverse=True, key=self.sort_aux))
-
 		return sorted(actions, reverse=True, key=self.sort_aux)
 
 	def sort_aux(self, list):
@@ -810,8 +851,8 @@ class Bimaru(Problem):
 	def actions(self, state: BimaruState) -> list:
 		"""Retorna uma lista de ações que podem ser executadas a
 		partir do estado passado como argumento."""
-		return [4, 3, 2, 1]
-		pass #METER BARCOS
+		
+		return state.board.get_actions()
 
 	def result(self, state: BimaruState, action):
 		"""Retorna o estado resultante de executar a 'action' sobre
