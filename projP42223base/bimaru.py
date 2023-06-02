@@ -63,13 +63,13 @@ class Board:
 		respectivamente."""
 		if(row == 0):
 			top = None
-			bottom = self.get_value(row + 1, col).upper()
+			bottom = self.get_value(row + 1, col)
 		elif(row == self.size - 1):
 			bottom = None
-			top = self.get_value(row - 1, col).upper()
+			top = self.get_value(row - 1, col)
 		else:
-			top = self.get_value(row -1 , col).upper()
-			bottom = self.get_value(row + 1, col).upper()
+			top = self.get_value(row -1 , col)
+			bottom = self.get_value(row + 1, col)
 
 		if top == ' ':
 			top = None
@@ -83,13 +83,13 @@ class Board:
 		respectivamente."""
 		if(col == 0):
 			left = None
-			right = self.get_value(row, col + 1).upper()
+			right = self.get_value(row, col + 1)
 		elif(col == self.size - 1):
 			right = None
-			left = self.get_value(row, col - 1).upper()
+			left = self.get_value(row, col - 1)
 		else:
-			left = self.get_value(row, col - 1).upper()
-			right = self.get_value(row, col + 1).upper()
+			left = self.get_value(row, col - 1)
+			right = self.get_value(row, col + 1)
 
 		if left == ' ':
 			left = None
@@ -97,8 +97,6 @@ class Board:
 			right = None
 
 		return (left, right)
-
-
 
 	@staticmethod
 	def parse_instance():
@@ -111,7 +109,7 @@ class Board:
 			> from sys import stdin
 			> line = stdin.readline().split()
 		"""
-		matrix = np.full((10,10), '?', dtype=str)
+		matrix = np.full((10,10), ' ', dtype=str)
 		inp_row = sys.stdin.readline()
 		vals_row = [int(x) for x in inp_row.split()[1:]]
 
@@ -124,13 +122,24 @@ class Board:
 		for i in range(num_hints):
 			line = sys.stdin.readline().split()
 			copyhints.append(line)
-			if str(line[3]) == 'W':
-				matrix[int(line[1])][int(line[2])] = ' '
 			matrix[int(line[1])][int(line[2])] = str(line[3])
-
-		# adicionar atributos aqui e possivel board.new_attr = uu
-
 		return Board(matrix, vals_row, vals_col, copyhints)
+		#FIXME USAR O QUE ESTA A BAIXO PARA DEBUG 
+		#with open('instance03.txt', 'r') as file:
+		#	copyhints = []
+		#	for line in file:
+		#		if line.startswith('ROW'):
+		#			# Split the line and convert the values to integers
+		#			rows = [int(x) for x in line.split()[1:]]
+		#		elif line.startswith('COLUMN'):
+		#			# Split the line and convert the values to integers
+		#			columns = [int(x) for x in line.split()[1:]]
+		#		elif line.startswith('HINT'):
+		#			# Split the line and extract the hint information
+		#			line = line.split()
+		#			copyhints.append(line)
+		#			matrix[int(line[1])][int(line[2])] = str(line[3])
+		#return Board(matrix, rows, columns, copyhints)
 
 	def print_board(self):
 		print(self.board)
@@ -144,11 +153,7 @@ class Board:
 		self.put_water_around_boat()
 		self.fill_occupied_rows()
 		self.complete_possible_boats()
-		self.put_water_around_boat()
-		#self.get_actions()
-		#self.apply_actions((3,6,1,'h'))
-		#self.apply_actions((3,2,1,'v'))
-
+		#self.put_water_around_search()
 
 	def put_line_waters(self):
 		i = 0
@@ -157,7 +162,7 @@ class Board:
 				row = self.board[i]
 				j = 0
 				while j < self.size:
-					self.set_value(i, j, " ")
+					self.set_value(i, j, "w")
 					j += 1
 			i += 1
 		i = 0
@@ -166,7 +171,7 @@ class Board:
 				col = self.board[:, i]
 				j = 0
 				while j < self.size:
-					self.set_value(j, i, " ")
+					self.set_value(j, i, "w")
 					j += 1
 			i += 1
 		
@@ -174,22 +179,22 @@ class Board:
 		while i < self.size:
 			if self.rowvals[i] == 1:
 				row = self.board[i]
-				if np.count_nonzero(row == "?") + np.count_nonzero(row == " ") != self.size:
+				if np.count_nonzero(row == " ") + np.count_nonzero(row == "W") + np.count_nonzero(row == "w") != self.size:
 					j = 0
 					while j < self.size:
-						if row[j] == "?":
-							self.set_value(i, j, " ")
+						if row[j] == " ":
+							self.set_value(i, j, "w")
 						j += 1
 			i += 1
 		i = 0
 		while i < self.size:
 			if self.colvals[i] == 1:
 				col = self.board[:, i]
-				if np.count_nonzero(col == "?") + np.count_nonzero(col == " ") != self.size:
+				if np.count_nonzero(col == " ") + np.count_nonzero(col == "W") + np.count_nonzero(col == "w") != self.size:
 					j = 0
 					while j < self.size:
-						if col[j] == "?":
-							self.set_value(j, i, " ")
+						if col[j] == " ":
+							self.set_value(j, i, "w")
 						j += 1
 			i += 1
 
@@ -202,13 +207,13 @@ class Board:
 		while i < len(t_pos_list[0]):
 			row = t_pos_list[0][i]
 			col = t_pos_list[1][i]
-			self.set_value(row + 1, col - 1, " ")
-			self.set_value(row, col - 1, " ")
-			self.set_value(row - 1, col - 1, " ")
-			self.set_value(row - 1, col, " ")
-			self.set_value(row - 1, col + 1, " ")
-			self.set_value(row, col + 1, " ")
-			self.set_value(row + 1, col + 1, " ")
+			self.set_value(row + 1, col - 1, "w")
+			self.set_value(row, col - 1, "w")
+			self.set_value(row - 1, col - 1, "w")
+			self.set_value(row - 1, col, "w")
+			self.set_value(row - 1, col + 1, "w")
+			self.set_value(row, col + 1, "w")
+			self.set_value(row + 1, col + 1, "w")
 			i += 1
 
 		t_pos_list = np.nonzero((self.board == "B") | (self.board == "b"))
@@ -216,13 +221,13 @@ class Board:
 		while i < len(t_pos_list[0]):
 			row = t_pos_list[0][i]
 			col = t_pos_list[1][i]
-			self.set_value(row + 1, col - 1, " ")
-			self.set_value(row, col - 1, " ")
-			self.set_value(row - 1, col - 1, " ")
-			self.set_value(row - 1, col + 1, " ")
-			self.set_value(row, col + 1, " ")
-			self.set_value(row + 1, col + 1, " ")
-			self.set_value(row + 1, col, " ")
+			self.set_value(row + 1, col - 1, "w")
+			self.set_value(row, col - 1, "w")
+			self.set_value(row - 1, col - 1, "w")
+			self.set_value(row - 1, col + 1, "w")
+			self.set_value(row, col + 1, "w")
+			self.set_value(row + 1, col + 1, "w")
+			self.set_value(row + 1, col, "w")
 			i += 1
 
 		t_pos_list = np.nonzero((self.board == "L") | (self.board == "l"))
@@ -230,13 +235,13 @@ class Board:
 		while i < len(t_pos_list[0]):
 			row = t_pos_list[0][i]
 			col = t_pos_list[1][i]
-			self.set_value(row + 1, col - 1, " ")
-			self.set_value(row, col - 1, " ")
-			self.set_value(row - 1, col - 1, " ")
-			self.set_value(row - 1, col, " ")
-			self.set_value(row - 1, col + 1, " ")
-			self.set_value(row + 1, col + 1, " ")
-			self.set_value(row + 1, col, " ")
+			self.set_value(row + 1, col - 1, "w")
+			self.set_value(row, col - 1, "w")
+			self.set_value(row - 1, col - 1, "w")
+			self.set_value(row - 1, col, "w")
+			self.set_value(row - 1, col + 1, "w")
+			self.set_value(row + 1, col + 1, "w")
+			self.set_value(row + 1, col, "w")
 			i += 1
 
 		t_pos_list = np.nonzero((self.board == "R") | (self.board == "r"))
@@ -244,13 +249,13 @@ class Board:
 		while i < len(t_pos_list[0]):
 			row = t_pos_list[0][i]
 			col = t_pos_list[1][i]
-			self.set_value(row + 1, col - 1, " ")
-			self.set_value(row - 1, col - 1, " ")
-			self.set_value(row - 1, col, " ")
-			self.set_value(row - 1, col + 1, " ")
-			self.set_value(row, col + 1, " ")
-			self.set_value(row + 1, col + 1, " ")
-			self.set_value(row + 1, col, " ")
+			self.set_value(row + 1, col - 1, "w")
+			self.set_value(row - 1, col - 1, "w")
+			self.set_value(row - 1, col, "w")
+			self.set_value(row - 1, col + 1, "w")
+			self.set_value(row, col + 1, "w")
+			self.set_value(row + 1, col + 1, "w")
+			self.set_value(row + 1, col, "w")
 			i += 1
 		
 		t_pos_list = np.nonzero((self.board == "M") | (self.board == "m") | (self.board == "X"))
@@ -258,10 +263,10 @@ class Board:
 		while i < len(t_pos_list[0]):
 			row = t_pos_list[0][i]
 			col = t_pos_list[1][i]
-			self.set_value(row + 1, col - 1, " ")
-			self.set_value(row - 1, col - 1, " ")
-			self.set_value(row - 1, col + 1, " ")
-			self.set_value(row + 1, col + 1, " ")
+			self.set_value(row + 1, col - 1, "w")
+			self.set_value(row - 1, col - 1, "w")
+			self.set_value(row - 1, col + 1, "w")
+			self.set_value(row + 1, col + 1, "w")
 			i += 1
 
 		t_pos_list = np.nonzero((self.board == "C") | (self.board == "c"))
@@ -271,14 +276,14 @@ class Board:
 			row = t_pos_list[0][i]
 			col = t_pos_list[1][i]
 			
-			self.set_value(row + 1, col - 1, " ")
-			self.set_value(row, col - 1, " ")
-			self.set_value(row - 1, col - 1, " ")
-			self.set_value(row - 1, col, " ")
-			self.set_value(row - 1, col + 1, " ")
-			self.set_value(row, col + 1, " ")
-			self.set_value(row + 1, col + 1, " ")
-			self.set_value(row + 1, col, " ")
+			self.set_value(row + 1, col - 1, "w")
+			self.set_value(row, col - 1, "w")
+			self.set_value(row - 1, col - 1, "w")
+			self.set_value(row - 1, col, "w")
+			self.set_value(row - 1, col + 1, "w")
+			self.set_value(row, col + 1, "w")
+			self.set_value(row + 1, col + 1, "w")
+			self.set_value(row + 1, col, "w")
 			i += 1
 
 	def put_possible_parts(self):
@@ -297,24 +302,24 @@ class Board:
 				elif self.board[i][j] == 'M':
 					hor_vals = self.adjacent_horizontal_values(i, j)
 					ver_vals = self.adjacent_vertical_values(i, j)
-					if ver_vals == (None, None) or ver_vals == (' ', ' '):
+					if ver_vals == (None, None) or ver_vals == ('w', 'w') or ver_vals == ('W', 'w') or ver_vals == ('W', 'W'):
 						if i == 1:
 							self.set_value(i - 1, j, 'X')
-						elif self.get_value(i - 1, j) != ' ':
+						elif self.get_value(i - 1, j) != 'w':
 							self.set_value(i - 1, j, 'X')
 						if i == self.size - 2:
 							self.set_value(i + 1, j, 'X')
-						elif self.get_value(i + 1, j) != ' ':
+						elif self.get_value(i + 1, j) != 'w':
 							self.set_value(i + 1, j, 'X')
 			
-					if hor_vals == (None, None) or hor_vals == (' ', ' '):
+					if hor_vals == (None, None) or hor_vals == ('w', 'w') or hor_vals == ('W', 'w') or hor_vals == ('W', 'W'):
 						if j == 1:
 							self.set_value(i, j - 1, 'X')
-						elif self.get_value(i, j - 1) != ' ':
+						elif self.get_value(i, j - 1) != 'w':
 							self.set_value(i, j - 1, 'X')
 						if j == self.size - 2:
 							self.set_value(i, j + 1, 'X')
-						elif self.get_value(i, j + 1) != ' ':
+						elif self.get_value(i, j + 1) != 'w':
 							self.set_value(i, j + 1, 'X')
 					self.set_value(i, j, 'X')
 						
@@ -348,38 +353,54 @@ class Board:
 			while j < self.size:
 				num_parts_line = np.count_nonzero(np.char.strip(self.board[i]) == np.array(parts)[:, None])
 				if self.rowvals[i] == num_parts_line:
-					if self.get_value(i, j) == '?':
-						self.set_value(i, j, ' ')
+					if self.get_value(i, j) == ' ':
+						self.set_value(i, j, 'w')
 				num_parts_col = np.count_nonzero(np.char.strip(self.board[:, j]) == np.array(parts)[:, None])
 				if self.colvals[j] == num_parts_col:
-					if self.get_value(i, j) == '?':
-						self.set_value(i, j, ' ')
+					if self.get_value(i, j) == ' ':
+						self.set_value(i, j, 'w')
 
 				j += 1
 			i += 1
 	
-	def complete_possible_boats(self): #TODO FALTAM CASOS SUPOSTAMENTE -- ESTA FUNCAO NAO TA BOA
+	def complete_possible_boats(self):
 		i = 0
-		#parts = ['T', 't', 'M', 'm', 'B', 'b', 'L', 'l', 'R', 'r']
 		while i < self.size:
 			j = 0
 			while j < self.size:
 				
-				if self.rowvals[i] == np.count_nonzero(self.board[i] == 'X') + np.count_nonzero(self.board[i] == '?'):
-					if self.get_value(i, j) == '?':
+				if self.rowvals[i] == np.count_nonzero(self.board[i] == 'X') + np.count_nonzero(self.board[i] == ' '):
+					if self.get_value(i, j) == ' ':
 						self.set_value(i, j, 'X')
 						self.fill_occupied_rows()
 				
-				if self.colvals[j] == np.count_nonzero(self.board[:, j] == 'X') + np.count_nonzero(self.board[:, j] == '?'):
-					if self.get_value(i, j) == '?':
+				if self.colvals[j] == np.count_nonzero(self.board[:, j] == 'X') + np.count_nonzero(self.board[:, j] == ' '):
+					if self.get_value(i, j) == ' ':
 						self.set_value(i, j, 'X')
 						self.fill_occupied_rows()
 				
 				j += 1
 			i += 1
 
+		self.put_water_around_boat()
 
+		i = 0
+		while i < self.size:
+			j = 0
+			while j < self.size:
+				if self.get_value(i, j) == ' ':
+					self.set_value(i, j, '?')
+				j += 1
+			i += 1
 
+		i = 0
+		while i < self.size:
+			j = 0
+			while j < self.size:
+				if self.get_value(i, j) == 'w' or self.get_value(i, j) == 'W':
+					self.set_value(i, j, ' ')
+				j += 1
+			i += 1
 			#if self.rowvals[i] == np.count_nonzero(self.board[i] == 'X'):
 			#	self.board[i] == np.where(self.board[i] == ' ', 'w', self.board[i])
 			#if self.colvals[j] == np.count_nonzero(self.board[:,j] == 'X'):
@@ -392,10 +413,10 @@ class Board:
 		col_vals = self.copycol#cp.deepcopy(self.colvals)
 
 
-		for i in range(10):
+		for i in range(self.size):
 			row = self.board[i]
 			boat_count = 0
-			for j in range(10):
+			for j in range(self.size):
 				if row[j] == 'X':
 					row_vals[i] -= 1
 
@@ -409,10 +430,10 @@ class Board:
 			if boat_count >= 1:
 				num_boats[boat_count] -= 1
 		
-		for i in range(10):
+		for i in range(self.size):
 			col = self.board[:, i]
 			boat_count = 0
-			for j in range(10):
+			for j in range(self.size):
 				if col[j] == 'X':
 					col_vals[i] -= 1
 				
@@ -429,21 +450,13 @@ class Board:
 		boat_size = 4
 		while boat_size > 0:
 			if num_boats[boat_size] > 0:
-				for i in range(10):
+				for i in range(self.size):
 					row = self.board[i]
 					if(row_vals[i] + np.count_nonzero(row == 'X') >= boat_size):
 						x_count = 0
 						empty_count = 0
 						start = []
-						for j in range(10):
-							if x_count < boat_size and empty_count + x_count == boat_size and j < 9 and row[j + 1] != 'X':
-								actions.append((boat_size, start[0], start[1], "h"))
-								x_count = 0
-								empty_count = 0
-							elif x_count > boat_size:
-								x_count = 0
-								empty_count = 0
-							
+						for j in range(self.size):
 							if row[j] == 'X' and self.adjacent_vertical_values(i, j) == (None, None):
 								if x_count == 0 and empty_count == 0:
 									start = [i, j]
@@ -453,14 +466,14 @@ class Board:
 									start = [i, j]
 								empty_count += 1
 							elif row[j] == ' ':
-								if x_count < boat_size and empty_count + x_count >= boat_size:
+								if x_count < boat_size and empty_count + x_count >= boat_size and self.adjacent_vertical_values(i, j) == (None, None):
 									offset = (empty_count + x_count) - boat_size
 									if empty_count - offset <= row_vals[i]:
 										actions.append((boat_size, start[0], start[1] + offset, "h"))
 								x_count = 0
 								empty_count = 0
 
-							if x_count < boat_size and empty_count + x_count == boat_size and j < 9 and row[j + 1] != 'X':
+							if x_count < boat_size and empty_count + x_count == boat_size and j < 9 and row[j + 1] != 'X' and self.adjacent_vertical_values(i, j) == (None, None):
 								actions.append((boat_size, start[0], start[1], "h"))
 								x_count = 0
 								empty_count = 0
@@ -471,13 +484,13 @@ class Board:
 						if x_count < boat_size and empty_count + x_count == boat_size and self.adjacent_vertical_values(i, j) == (None, None):	
 							actions.append((boat_size, start[0], start[1], "h"))
 				
-				for i in range(10):
+				for i in range(self.size):
 					col = self.board[:, i]
 					if(col_vals[i] + np.count_nonzero(col == 'X') >= boat_size):
 						x_count = 0
 						empty_count = 0
 						start = []
-						for j in range(10):
+						for j in range(self.size):
 
 							if col[j] == 'X' and self.adjacent_horizontal_values(j, i) == (None, None):
 								if x_count == 0 and empty_count == 0:
@@ -488,14 +501,14 @@ class Board:
 									start = [j, i]
 								empty_count += 1
 							elif col[j] == ' ':
-								if x_count < boat_size and empty_count + x_count >= boat_size:
+								if x_count < boat_size and empty_count + x_count >= boat_size and self.adjacent_horizontal_values(j, i) == (None, None):
 									offset = (empty_count + x_count) - boat_size
 									if empty_count - offset <= col_vals[i]:
 										actions.append((boat_size, start[0] + offset, start[1], "v"))
 								x_count = 0
 								empty_count = 0
 							
-							if x_count < boat_size and empty_count + x_count == boat_size and j < 9 and col[j + 1] != 'X':
+							if x_count < boat_size and empty_count + x_count == boat_size and j < 9 and col[j + 1] != 'X' and self.adjacent_horizontal_values(j, i) == (None, None):
 								actions.append((boat_size, start[0], start[1], "v"))
 								x_count = 0
 								empty_count = 0
@@ -506,9 +519,8 @@ class Board:
 						if x_count < boat_size and empty_count + x_count == boat_size and self.adjacent_horizontal_values(j, i) == (None, None):
 							actions.append((boat_size, start[0], start[1], "v"))
 			boat_size -= 1
-			#print(sorted(actions, reverse=True, key=self.sort_aux))
-			#time.sleep(1)
-		return sorted(actions, reverse=True, key=self.sort_aux)
+		#print(sorted(actions, key=self.sort_aux))
+		return sorted(actions, key=self.sort_aux)
 
 	def sort_aux(self, list):
 		return list[0]
@@ -518,16 +530,6 @@ class Board:
 		for i in range(len(self.copyhints)):
 			values = self.copyhints[i][1:4]
 			self.set_value(int(values[0]), int(values[1]), values[2])
-
-
-
-	'''
-	T X	X X	T T	T X	X X X|T X X T T X  X|T X T X|L M M R - L X X X - X M X X|L M R - L M X|L R|
-	M M	X X	X M	M X	X M M|M M X X M X  M|B B X X|X M M R - L M X X - X X M X|X M R - X X X|X R|
-	M M	M X	X X	M X	M X M|B B B X X X  X|	    |X X M R - L M M X - X M M X|X X R - X M X|L X|
-	B B	B B	X X	X X	X X X|		   	    |	    |X X X R - X X X X          |L X X 	      |X X|
-	'''
-
 
 	def complete_boat(self): 
 		i = 0
@@ -540,281 +542,116 @@ class Board:
 					 self.adjacent_horizontal_values(i, j) == (None, None):
 						self.set_value(i, j, 'c')
 						self.boats_left[1] -= 1
-					# VERTICAL T X
-					elif self.adjacent_vertical_values(i, j) == ('T', None):
-						self.set_value(i, j, 'b')
-						self.boats_left[2] -= 1
-					# VERTICAL X B
-					elif self.adjacent_vertical_values(i, j) == (None, 'B'):
-						self.set_value(i, j, 't')
-						self.boats_left[2] -= 1
-					# HORIZONTAL L X
-					elif self.adjacent_horizontal_values(i, j) == ('L', None):
-						self.set_value(i, j, 'r')
-						self.boats_left[2] -= 1
-					# HORIZONTAL X R
-					elif self.adjacent_horizontal_values(i, j) == (None, 'R'):
-						self.set_value(i, j, 'l')
-						self.boats_left[2] -= 1
 					# VERTICAL X X
-					elif (self.adjacent_vertical_values(i, j) == (None, 'X') or self.adjacent_vertical_values(i, j) == (' ', 'X')) and \
-					 (self.adjacent_vertical_values(i + 1, j) == ('X', None) or self.adjacent_vertical_values(i + 1, j) == ('X', ' ')):
+					elif self.adjacent_vertical_values(i, j) == (None, 'X') and self.adjacent_vertical_values(i + 1, j) == ('X', None):
 						self.set_value(i, j, 't')
 						self.set_value(i + 1, j, 'b')
 						self.boats_left[2] -= 1
 					# HORIZONTAL X X
-					elif (self.adjacent_horizontal_values(i, j) == (None, 'X') or self.adjacent_horizontal_values(i, j) == (' ', 'X')) and \
-					 (self.adjacent_horizontal_values(i, j + 1) == ('X', None) or self.adjacent_horizontal_values(i, j + 1) == ('X', ' ')):
+					elif self.adjacent_horizontal_values(i, j) == (None, 'X') and self.adjacent_horizontal_values(i, j + 1) == ('X', None):
 						self.set_value(i, j, 'l')
 						self.set_value(i, j + 1, 'r')
 						self.boats_left[2] -= 1
 					# VERTICAL X X X
-					elif (self.adjacent_vertical_values(i, j) == (None, 'X') or self.adjacent_vertical_values(i, j) == (' ', 'X')) and \
-					 self.adjacent_vertical_values(i + 1, j) == ('X', 'X') and \
-					 (self.adjacent_vertical_values(i + 2, j) == ('X', None) or self.adjacent_vertical_values(i + 2, j) == ('X', ' ')):
+					elif self.adjacent_vertical_values(i, j) == (None, 'X') and self.adjacent_vertical_values(i + 1, j) == ('X', 'X') and \
+					 self.adjacent_vertical_values(i + 2, j) == ('X', None):
 						self.set_value(i, j, 't')
 						self.set_value(i + 1, j, 'm')
 						self.set_value(i + 2, j, 'b')
 						self.boats_left[3] -= 1
 					# HORIZONTAL X X X
-					elif (self.adjacent_horizontal_values(i, j) == (None, 'X') or self.adjacent_horizontal_values(i, j) == (' ', 'X')) and \
-					 self.adjacent_horizontal_values(i, j + 1) == ('X', 'X') and \
-					 (self.adjacent_horizontal_values(i, j + 2) == ('X', None) or self.adjacent_horizontal_values(i, j + 2) == ('X', ' ')):
+					elif self.adjacent_horizontal_values(i, j) == (None, 'X') and self.adjacent_horizontal_values(i, j + 1) == ('X', 'X') and \
+					 self.adjacent_horizontal_values(i, j + 2) == ('X', None):
 						self.set_value(i, j, 'l')
 						self.set_value(i, j + 1, 'm')
 						self.set_value(i, j + 2, 'r')
 						self.boats_left[3] -= 1
 					# VERTICAL X X X X
-					elif (self.adjacent_vertical_values(i, j) == (None, 'X') or self.adjacent_vertical_values(i, j) == (' ', 'X')) and \
-					 self.adjacent_vertical_values(i + 1, j) == ('X', 'X') and \
-					 self.adjacent_vertical_values(i + 2, j) == ('X', 'X') and \
-					 (self.adjacent_vertical_values(i + 3, j) == ('X', None) or self.adjacent_vertical_values(i + 3, j) == ('X', ' ')):
+					elif self.adjacent_vertical_values(i, j) == (None, 'X') and self.adjacent_vertical_values(i + 1, j) == ('X', 'X') and \
+					 self.adjacent_vertical_values(i + 2, j) == ('X', 'X') and self.adjacent_vertical_values(i + 3, j) == ('X', None):
 						self.set_value(i, j, 't')
 						self.set_value(i + 1, j, 'm')
 						self.set_value(i + 2, j, 'm')
 						self.set_value(i + 3, j, 'b')
 						self.boats_left[4] -= 1
 					# HORIZONTAL X X X X
-					elif (self.adjacent_horizontal_values(i, j) == (None, 'X') or self.adjacent_horizontal_values(i, j) == (' ', 'X')) and \
-					 self.adjacent_horizontal_values(i, j + 1) == ('X', 'X') and \
-					 self.adjacent_horizontal_values(i, j + 2) == ('X', 'X') and \
-					 (self.adjacent_horizontal_values(i, j + 3) == ('X', None) or self.adjacent_horizontal_values(i, j + 3) == ('X', ' ')):
+					elif self.adjacent_horizontal_values(i, j) == (None, 'X') and self.adjacent_horizontal_values(i, j + 1) == ('X', 'X') and \
+					 self.adjacent_horizontal_values(i, j + 2) == ('X', 'X') and self.adjacent_horizontal_values(i, j + 3) == ('X', None):
 						self.set_value(i, j, 'l')
 						self.set_value(i, j + 1, 'm')
 						self.set_value(i, j + 2, 'm')
-						self.set_value(i, j+ 3, 'r')
-						
-						self.boats_left[4] -= 1
-					# VERTICAL T X X
-					elif self.adjacent_vertical_values(i, j) == ('T', 'X') and \
-					 self.adjacent_vertical_values(i + 1, j) == ('X', None):
-						self.set_value(i, j, 'm')
-						self.set_value(i + 1, j, 'b')
-						self.boats_left[3] -= 1
-					# VERTICAL T M X
-					elif self.adjacent_vertical_values(i, j) == ('M', None) and \
-					 self.adjacent_vertical_values(i - 1, j) == ('T', 'X'):
-						self.set_value(i, j, 'b')
-						self.boats_left[3] -= 1
-					# VERTICAL X X B
-					elif self.adjacent_vertical_values(i, j) == (None, 'X') and \
-					 self.adjacent_vertical_values(i + 1, j) == ('X', 'B'):
-						self.set_value(i, j, 't')
-						self.set_value(i + 1, j, 'm')
-						self.boats_left[3] -= 1
-					# VERTICAL X M B
-					elif self.adjacent_vertical_values(i, j) == (None, 'M') and \
-					 self.adjacent_vertical_values(i + 1, j) == ('X', 'B'):
-						self.set_value(i, j, 't')
-						self.boats_left[3] -= 1
-					# VERTICAL T X X X
-					elif self.adjacent_vertical_values(i, j) == ('T', 'X') and \
-					 self.adjacent_vertical_values(i + 1, j) == ('X', 'X') and \
-					 self.adjacent_vertical_values(i + 2, j) == ('X', None):
-						self.set_value(i, j, 'm')
-						self.set_value(i + 1, j, 'm')
-						self.set_value(i + 2, j, 'b')
-						self.boats_left[4] -= 1
-					# VERTICAL T M X X
-					elif self.adjacent_vertical_values(i, j) == ('M', 'X') and \
-					 self.adjacent_vertical_values(i + 1, j) == ('X', None) and \
-					 self.adjacent_vertical_values(i - 1, j) == ('T', 'X'):
-						self.set_value(i, j, 'm')
-						self.set_value(i + 1, j, 'b')
-						self.boats_left[4] -= 1
-					# VERTICAL T M M X
-					elif self.adjacent_vertical_values(i, j) == ('M', None) and \
-					 self.adjacent_vertical_values(i - 1, j) == ('M', 'X') and \
-					 self.adjacent_vertical_values(i - 2, j) == ('T', 'M') and \
-					 self.adjacent_vertical_values(i - 3, j) == (None, 'M'):
-						self.set_value(i, j, 'b')
-						self.boats_left[4] -= 1
-					# VERTICAL X X X B
-					elif self.adjacent_horizontal_values(i, j) == (None, 'X') and \
-					 self.adjacent_vertical_values(i + 1, j) == ('X', 'X') and \
-					 self.adjacent_horizontal_values(i + 2, j) == ('X', 'B'):
-						self.set_value(i, j, 't')
-						self.set_value(i + 1, j, 'm')
-						self.set_value(i + 2, j, 'm')
-						self.boats_left[4] -= 1
-					# VERTICAL X X M B
-					elif self.adjacent_vertical_values(i, j) == (None, 'X') and \
-					 self.adjacent_vertical_values(i + 1, j) == ('X', 'M') and \
-					 self.adjacent_vertical_values(i + 2, j) == ('X', 'B') and \
-					 self.adjacent_vertical_values(i + 3, j) == ('M', None):
-						self.set_value(i, j, 't')
-						self.set_value(i + 1, j ,'m')
-						self.boats_left[4] -= 1
-					# VERTICAL X M M B
-					elif self.adjacent_vertical_values(i, j) == (None, 'M') and \
-					 self.adjacent_vertical_values(i + 1, j) == ('X', 'M') and \
-					 self.adjacent_vertical_values(i + 2, j) == ('M', 'B') and \
-					 self.adjacent_vertical_values(i + 3, j) == ('M', None):
-						self.set_value(i, j, 't')
-						self.boats_left[4] -= 1
-					# HORIZONTAL X M R
-					elif self.adjacent_horizontal_values(i, j) == (None, 'M') and \
-					 self.adjacent_horizontal_values(i, j + 1) == ('M', None):
-						self.set_value(i, j, 'l')
-						self.boats_left[3] -= 1
-					# HORIZONTAL X X R
-					elif self.adjacent_horizontal_values(i, j) == (None, 'X') and \
-					 self.adjacent_horizontal_values(i, j + 1) == ('X', 'R') and \
-					 self.adjacent_horizontal_values(i, j + 2) == ('X', None):
-						self.set_value(i, j, 'l')
-						self.set_value(i, j, 'm')
-						self.boats_left[3] -= 1
-					# HORIZONTAL L X X
-					elif self.adjacent_horizontal_values(i, j) == ('L', 'X') and \
-					 self.adjacent_horizontal_values(i, j + 1) == ('X', None) and \
-					 self.adjacent_horizontal_values(i, j - 1) == (None, 'X'):
-						self.set_value(i, j, 'm')
-						self.set_value(i, j + 1, 'r')
-						self.boats_left[3] -= 1
-					# HORIZONTAL L M X
-					elif self.adjacent_horizontal_values(i, j) == ('M', None) and \
-					 self.adjacent_horizontal_values(i, j - 1) == ('L', 'X') and \
-					 self.adjacent_horizontal_values(i, j - 2) == (None, 'M'):
-						self.set_value(i, j, 'r')
-						self.boats_left[3] -= 1
-					# HORIZONTAL X M M R
-					elif self.adjacent_horizontal_values(i, j) == (None, 'M') and \
-					 self.adjacent_horizontal_values(i, j + 1) == ('X', 'M') and \
-					 self.adjacent_horizontal_values(i, j + 2) == ('M', 'R') and \
-					 self.adjacent_horizontal_values(i, j + 3) == ('M', None):
-						self.set_value(i, j, 'l')
-						self.boats_left[4] -= 1
-					# HORIZONTAL X X M R
-					elif self.adjacent_horizontal_values(i, j) == (None, 'X') and \
-					 self.adjacent_horizontal_values(i, j + 1) == ('X', 'M')  and \
-					 self.adjacent_horizontal_values(i, j + 2) == ('X', 'R') and \
-					 self.adjacent_horizontal_values(i, j + 3) == ('M', None):
-						self.set_value(i, j, 'l')
-						self.set_value(i, j + 1, 'm')
-						self.boats_left[4] -= 1
-					# HORIZONTAL X X X R
-					elif self.adjacent_horizontal_values(i, j) == (None, 'X') and \
-					 self.adjacent_horizontal_values(i, j + 1) == ('X', 'X') and \
-					 self.adjacent_horizontal_values(i, j + 2) == ('X', 'R') and \
-					 self.adjacent_horizontal_values(i, j + 3) == ('X', None):
-						self.set_value(i, j, 'l')
-						self.set_value(i, j + 1, 'm')
-						self.set_value(i, j + 2, 'm')
-						self.boats_left[4] -= 1
-					# HORIZONTAL L X X X
-					elif self.adjacent_horizontal_values(i, j) == ('L', 'X') and \
-					 self.adjacent_horizontal_values(i, j + 1) == ('X', 'X') and \
-					 self.adjacent_horizontal_values(i, j + 2) == ('X', None) and \
-					 self.adjacent_horizontal_values(i, j - 1) == (None, 'X'):
-						self.set_value(i, j, 'm')
-						self.set_value(i, j + 1, 'm')
-						self.set_value(i, j + 2, 'r')
-						self.boats_left[4] -= 1
-					# HORIZONTAL L M X X
-					elif self.adjacent_horizontal_values(i, j) == ('M', 'X') and \
-					 self.adjacent_horizontal_values(i, j + 1) == ('X', 'X') and \
-					 self.adjacent_horizontal_values(i, j - 1) == ('L', 'X') and \
-					 self.adjacent_horizontal_values(i, j - 2) == (None, 'M'):
-						self.set_value(i, j, 'm')
-						self.set_value(i, j + 1, 'r')
-						self.boats_left[4] -= 1
-					# HORIZONTAL L M M X
-					elif self.adjacent_horizontal_values(i, j) == ('M', None) and \
-					 self.adjacent_horizontal_values(i, j - 1) == ('M', 'X') and \
-					 self.adjacent_horizontal_values(i, j - 2) == ('L', 'M') and \
-					 self.adjacent_horizontal_values(i, j - 3) == (None, 'M'):
-						self.set_value(i, j, 'r')
-						self.boats_left[4] -= 1
-					# HORIZONTAL X X M X
-					elif self.adjacent_horizontal_values(i, j) == (None, 'X') and \
-					 self.adjacent_horizontal_values(i, j + 1) == ('X', 'M') and \
-					 self.adjacent_horizontal_values(i, j + 2) == ('X', 'X') and \
-					 self.adjacent_horizontal_values(i, j + 3) == ('M', None):
-						self.set_value(i, j, 'l')
-						self.set_value(i, j + 1, 'm')
 						self.set_value(i, j + 3, 'r')
-						self.boats_left[4] -= 1
-					# HORIZONTAL X M X X
-					elif self.adjacent_horizontal_values(i, j) == (None, 'M') and \
-					 self.adjacent_horizontal_values(i, j + 1) == ('X','X') and \
-					 self.adjacent_horizontal_values(i, j + 2) == ('M', 'X') and \
-					 self.adjacent_horizontal_values(i, j + 3) == ('X', None):
-						self.set_value(i, j, 'l')
-						self.set_value(i, j + 2, 'm')
-						self.set_value(i, j + 3, 'r')
-						self.boats_left[4] -= 1
-					# HORIZONTAL X M M X
-					elif self.adjacent_horizontal_values(i, j) == (None, 'M') and \
-					 self.adjacent_horizontal_values(i, j + 1) == ('X','M') and \
-					 self.adjacent_horizontal_values(i, j + 2) == ('M', 'X') and \
-					 self.adjacent_horizontal_values(i, j + 3) == ('M', None):
-						self.set_value(i, j, 'l')
-						self.set_value(i, j + 3, 'r')
-						self.boats_left[4] -= 1
-					# VERTICAL X X M X
-					elif self.adjacent_vertical_values(i, j) == (None, 'X') and \
-					 self.adjacent_vertical_values(i + 1, j) == ('X', 'M') and \
-					 self.adjacent_vertical_values(i + 2, j) == ('X', 'X') and \
-					 self.adjacent_vertical_values(i + 3, j) == ('M', None):
-						self.set_value(i, j, 't')
-						self.set_value(i + 1, j, 'm')
-						self.set_value(i + 3, j, 'b')
-						self.boats_left[4] -= 1
-					# VERTICAL X M X X
-					elif self.adjacent_vertical_values(i, j) == (None, 'M') and \
-					 self.adjacent_vertical_values(i + 1, j) == ('X','X') and \
-					 self.adjacent_vertical_values(i + 2, j) == ('M', 'X') and \
-					 self.adjacent_vertical_values(i + 3, j) == ('X', None):
-						self.set_value(i, j, 't')
-						self.set_value(i + 2, j, 'm')
-						self.set_value(i + 3, j, 'b')
-						self.boats_left[4] -= 1
-					# VERTICAL X M M X
-					elif self.adjacent_vertical_values(i, j) == (None, 'M') and \
-					 self.adjacent_vertical_values(i + 1, j) == ('X','M') and \
-					 self.adjacent_vertical_values(i + 2, j) == ('M', 'X') and \
-					 self.adjacent_vertical_values(i + 3, j) == ('M', None):
-						self.set_value(i, j, 't')
-						self.set_value(i + 3, j, 'b')
-						self.boats_left[4] -= 1
-					# VERTICAL X M X
-					elif self.adjacent_vertical_values(i, j) == (None, 'M') and \
-					 self.adjacent_vertical_values(i + 1, j) == ('X', 'X') and \
-					 self.adjacent_vertical_values(i + 2, j) == ('M', None):
-						self.set_value(i, j, 't')
-						self.set_value(i + 2, j, 'b')
-						self.boats_left[3] -= 1
-					# HORIZONTAL X M X
-					elif self.adjacent_horizontal_values(i, j) == (None, 'M') and \
-					 self.adjacent_horizontal_values(i, j + 1) == ('X', 'X') and \
-					 self.adjacent_horizontal_values(i, j + 2) == ('M', None):
-						self.set_value(i, j, 'l')
-						self.set_value(i, j + 2, 'r')
-						self.boats_left[3] -= 1
 				j += 1
-
+			i += 1
+		
+	def fill_with_search(self):
+		i = 0
+		parts = ['X']
+		while i < self.size:
+			j = 0
+			while j < self.size:
+				if self.get_value(i, j) == '?':
+					num_parts_line = np.count_nonzero(np.char.strip(self.board[i]) == np.array(parts))
+					num_parts_col = np.count_nonzero(np.char.strip(self.board[:, j]) == np.array(parts))
+					
+					if self.rowvals[i] == num_parts_line or self.colvals[j] == num_parts_col:
+						self.set_value(i, j, ' ')
+				
+				j += 1
 			i += 1
 
+	def complete_possible_search(self):
+		i = 0
+		while i < self.size:
+			j = 0
+			while j < self.size:
+				
+				if self.rowvals[i] == np.count_nonzero(self.board[i] == 'X') + np.count_nonzero(self.board[i] == '?'):
+					if self.get_value(i, j) == '?':
+						self.set_value(i, j, 'X')
+						self.fill_with_search()
+				
+				if self.colvals[j] == np.count_nonzero(self.board[:, j] == 'X') + np.count_nonzero(self.board[:, j] == '?'):
+					if self.get_value(i, j) == '?':
+						self.set_value(i, j, 'X')
+						self.fill_with_search()
+				
+				j += 1
+			i += 1
+	
+	def put_water_around_search(self):
+		t_pos_list = np.nonzero(self.board == "X")
+		i = 0
+		while i < len(t_pos_list[0]):
+			row = t_pos_list[0][i]
+			col = t_pos_list[1][i]
+			self.set_value(row + 1, col - 1, " ")
+			self.set_value(row - 1, col - 1, " ")
+			self.set_value(row - 1, col + 1, " ")
+			self.set_value(row + 1, col + 1, " ")
+			i += 1
+
+	def apply_actions(self, action):
+		boat_size = action[0]
+		row_val = action[1]
+		col_val = action[2]
+		direction = action[3]
+
+		if direction == 'v':
+			i = row_val
+			while i < boat_size + row_val:
+				if self.get_value(i, col_val) == '?':
+					self.set_value(i, col_val, 'X')
+				i += 1
+		elif direction == 'h':
+			i = col_val
+			while i < boat_size + col_val:
+				if self.get_value(row_val, i) == '?':
+					self.set_value(row_val, i, 'X')
+				i += 1
+		self.put_water_around_boat()
+		self.fill_with_search() # novo barco posto, se preencher linha/coluna chamar isto
+	
 	def print_pretty_board(self):
 		matrix = self.board
 		rows, cols = matrix.shape
@@ -826,54 +663,9 @@ class Board:
 				else:
 					row_str += matrix[i][j]
 			print(row_str)
-
-	def apply_actions(self, action):
-		boat_size = action[0]
-		row_val = action[1]
-		col_val = action[2]
-		direction = action[3]
-
-		if direction == 'v':
-			i = row_val
-			while i < boat_size + row_val:
-				self.set_value(i, col_val, 'X')
-					#self.copyrow[i] -= 1
-					#self.copycol[col_val] -= 1
-				i += 1
-		elif direction == 'h':
-			i = col_val
-			while i < boat_size + col_val:
-				self.set_value(row_val, i, 'X')
-					#self.copyrow[row_val] -= 1
-					#self.copycol[i] -= 1
-				i += 1
-		#self.fill_with_search() # novo barco posto, se preencher linha/coluna chamar isto
-		self.put_water_around_boat() # novo barco posto e, por aguas a volta dos X introduzidos
-		self.fill_occupied_rows()
-
-	def fill_with_search(self):
-		i = 0
-		parts = ['?', 'X']
-		while i < self.size:
-			j = 0
-			while j < self.size:
-				num_parts_line = np.count_nonzero(np.char.strip(self.board[i]) == np.array(parts)[:, None])
-				if self.rowvals[i] == num_parts_line:
-					if self.get_value(i, j) == '?':
-						self.set_value(i, j, ' ')
-				num_parts_col = np.count_nonzero(np.char.strip(self.board[:, j]) == np.array(parts)[:, None])
-				if self.colvals[j] == num_parts_col:
-					if self.get_value(i, j) == '?':
-						self.set_value(i, j, ' ')
-
-				j += 1
-			i += 1
-	
-
 	# TODO: outros metodos da classe
-
 class Bimaru(Problem):
-	def __init__(self, board: Board): #,goal):
+	def __init__(self, board: Board):
 		"""O construtor especifica o estado inicial."""
 		# TODO
 		#criar um board para criar um state
@@ -883,12 +675,8 @@ class Bimaru(Problem):
 	def actions(self, state: BimaruState) -> list:
 		"""Retorna uma lista de ações que podem ser executadas a
 		partir do estado passado como argumento."""
+		
 		actions = state.board.get_actions()
-
-		#state.board.print_board()
-		#print(actions)
-		#time.sleep(1)
-
 		return actions
 
 	def result(self, state: BimaruState, action):
@@ -897,28 +685,23 @@ class Bimaru(Problem):
 		das presentes na lista obtida pela execução de
 		self.actions(state)."""
 		# TODO
-		#print()
-		#print(action)
 		# aplicar action ao estado
-		new_state = BimaruState(cp.deepcopy(state.board)) 
+		new_state = BimaruState(cp.deepcopy(state.board))
 		new_state.board.apply_actions(action)
-		#new_state.board.print_board()
-		#time.sleep(1)
 		return new_state
 
 	def goal_test(self, state: BimaruState):
 		"""Retorna True se e só se o estado passado como argumento é
 		um estado objetivo. Deve verificar se todas as posições do tabuleiro
 		estão preenchidas de acordo com as regras do problema."""
-		
-		return self.is_goal(state.board)
+		test_board = state.board
+		return self.is_goal(test_board)
 
 	def h(self, node: Node):
 		"""Função heuristica utilizada para a procura A*."""
 		# TODO
 		pass
 
-	# TODO: outros metodos da classe
 	def is_goal(self, board):
 		num_boats = [0, 4, 3, 2, 1] #boat size : number boats
 	
@@ -934,11 +717,14 @@ class Bimaru(Problem):
 			for j in range(10):
 				if row[j] == 'X':
 					x_count += 1
-
 				if row[j] == 'X' and board.adjacent_vertical_values(i, j) == (None, None):
 					boat_count += 1
 				elif row[j] == ' ' and boat_count != 0:
 					num_boats[boat_count] -= 1
+					boat_count = 0
+				if j == 9 and boat_count != 0:
+					if boat_count >= 1:
+						num_boats[boat_count] -= 1
 					boat_count = 0
 			if boat_count >= 1:
 				num_boats[boat_count] -= 1
@@ -953,10 +739,13 @@ class Bimaru(Problem):
 			for j in range(10):
 				if col[j] == 'X':
 					x_count += 1
-				
 				if col[j] == 'X' and board.adjacent_horizontal_values(j, i) == (None, None):
 					boat_count += 1
 				elif col[j] == ' ' and boat_count != 0:
+					if boat_count > 1:
+						num_boats[boat_count] -= 1
+					boat_count = 0
+				if j == 9 and boat_count != 0:
 					if boat_count > 1:
 						num_boats[boat_count] -= 1
 					boat_count = 0
@@ -967,7 +756,7 @@ class Bimaru(Problem):
 		if num_boats.count(0) != 5:
 			return False
 		return True
-	
+	# TODO: outros metodos da classe
 
 if __name__ == "__main__":
 	# TODO:
@@ -978,17 +767,16 @@ if __name__ == "__main__":
 	board = Board.parse_instance()
 
 	board.fill_the_board()
-	#print(board.get_actions())
-	problem = Bimaru(board)
-	board.print_board()
-	goal_node = depth_first_tree_search(problem)
 	
-	#problem.board.complete_boat()
-	#problem.board.update()
-	#print(board.boats_left)
-	print("")
-	board.print_pretty_board()
-
-	goal_node.print_board()
+	problem = Bimaru(board)
+	goal_node = depth_first_tree_search(problem)
+	#problem.board.print_board()
+	
+	goal_node.state.board.complete_boat()
+	goal_node.state.board.update()
+	goal_node.state.board.print_pretty_board()
+	#print("")
+	#problem.board.print_pretty_board()
+	#goal_node.print_pretty_board()
 
 	
