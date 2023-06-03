@@ -467,70 +467,71 @@ class Board:
 		for i in range(self.size):
 			row = self.board[i]
 			if(row_vals[i] + np.count_nonzero(row == 'X') >= boat_size):
-				x_count = 0
-				empty_count = 0
-				start = []
-				for j in range(self.size):
-					if row[j] == 'X' and self.adjacent_vertical_values(i, j) in adjacent_cases:
-						if x_count == 0 and empty_count == 0:
-							start = [i, j]
-						x_count += 1
-					elif row[j] == '?' and self.adjacent_vertical_values(i, j) in adjacent_cases:
-						if x_count == 0 and empty_count == 0:
-							start = [i, j]
-						empty_count += 1
-					elif row[j] == ' ':
-						if x_count < boat_size and empty_count + x_count >= boat_size and row_vals[i] + x_count >= boat_size and self.adjacent_vertical_values(i, j) in adjacent_cases:
-							offset = (empty_count + x_count) - boat_size
-							if empty_count - offset <= row_vals[i]:
-								actions.append((boat_size, start[0], start[1] + offset, "h"))
+				for w in range(self.size):
+					if row[w] == 'X' or row[w] == '?':
+						start = [i, w]
 						x_count = 0
 						empty_count = 0
+						for j in range(w, self.size):
+							if row[j] == 'X' and self.adjacent_vertical_values(i, j) in adjacent_cases:
+								x_count += 1
+							elif row[j] == '?' and self.adjacent_vertical_values(i, j) in adjacent_cases:
+								empty_count += 1
+							elif row[j] == ' ':
+								if x_count < boat_size and empty_count + x_count >= boat_size and row_vals[i] + x_count >= boat_size and self.adjacent_vertical_values(i, j) in adjacent_cases:
+									offset = (empty_count + x_count) - boat_size
+									if empty_count - offset <= row_vals[i]:
+										actions.append((boat_size, start[0], start[1] + offset, "h"))
+								x_count = 0
+								empty_count = 0
+								break
 
-					if x_count < boat_size and empty_count + x_count == boat_size and row_vals[i] + x_count >= boat_size and j < 9 and row[j + 1] != 'X' and self.adjacent_vertical_values(i, j) in adjacent_cases:
-						actions.append((boat_size, start[0], start[1], "h"))
-						x_count = 0
-						empty_count = 0
-					elif x_count > boat_size:
-						x_count = 0
-						empty_count = 0
-					
-				if x_count < boat_size and empty_count + x_count == boat_size and row_vals[i] + x_count >= boat_size and self.adjacent_vertical_values(i, j) in adjacent_cases:	
-					actions.append((boat_size, start[0], start[1], "h"))
+							if x_count < boat_size and empty_count + x_count == boat_size and row_vals[i] + x_count >= boat_size and j < 9 and row[j + 1] != 'X' and self.adjacent_vertical_values(i, j) in adjacent_cases:
+								actions.append((boat_size, start[0], start[1], "h"))
+								x_count = 0
+								empty_count = 0
+								break
+							elif x_count > boat_size:
+								x_count = 0
+								empty_count = 0
+								break
+							
+						if x_count < boat_size and empty_count + x_count == boat_size and row_vals[i] + x_count >= boat_size and self.adjacent_vertical_values(i, j) in adjacent_cases:	
+							actions.append((boat_size, start[0], start[1], "h"))
 		if boat_size > 1:
 			for i in range(self.size):
 				col = self.board[:, i]
 				if(col_vals[i] + np.count_nonzero(col == 'X') >= boat_size):
-					x_count = 0
-					empty_count = 0
-					start = []
-					for j in range(self.size):
-						if col[j] == 'X' and self.adjacent_horizontal_values(j, i) in adjacent_cases:
-							if x_count == 0 and empty_count == 0:
-								start = [j, i]
-							x_count += 1
-						elif col[j] == '?' and self.adjacent_horizontal_values(j, i) in adjacent_cases:
-							if x_count == 0 and empty_count == 0:
-								start = [j, i]
-							empty_count += 1
-						elif col[j] == ' ':
-							if x_count < boat_size and empty_count + x_count >= boat_size and col_vals[i] + x_count >= boat_size and self.adjacent_horizontal_values(j, i) in adjacent_cases:
-								offset = (empty_count + x_count) - boat_size
-								if empty_count - offset <= col_vals[i]:
-									actions.append((boat_size, start[0] + offset, start[1], "v"))
+					for w in range(self.size):
+						if col[w] == 'X' or col[w] == '?':
+							start = [w, i]
 							x_count = 0
 							empty_count = 0
-						
-						if x_count < boat_size and empty_count + x_count == boat_size and col_vals[i] + x_count >= boat_size and j < 9 and col[j + 1] != 'X' and self.adjacent_horizontal_values(j, i) in adjacent_cases:
-							actions.append((boat_size, start[0], start[1], "v"))
-							x_count = 0
-							empty_count = 0
-						elif x_count > boat_size:
-							x_count = 0
-							empty_count = 0
-					
-					if x_count < boat_size and empty_count + x_count == boat_size and col_vals[i] + x_count >= boat_size and self.adjacent_horizontal_values(j, i) in adjacent_cases:
-						actions.append((boat_size, start[0], start[1], "v"))
+							for j in range(w, self.size):
+								if col[j] == 'X' and self.adjacent_horizontal_values(j, i) in adjacent_cases:
+									x_count += 1
+								elif col[j] == '?' and self.adjacent_horizontal_values(j, i) in adjacent_cases:
+									empty_count += 1
+								elif col[j] == ' ':
+									if x_count < boat_size and empty_count + x_count >= boat_size and col_vals[i] + x_count >= boat_size and self.adjacent_horizontal_values(j, i) in adjacent_cases:
+										offset = (empty_count + x_count) - boat_size
+										if empty_count - offset <= col_vals[i]:
+											actions.append((boat_size, start[0] + offset, start[1], "v"))
+									x_count = 0
+									empty_count = 0
+									break
+								
+								if x_count < boat_size and empty_count + x_count == boat_size and col_vals[i] + x_count >= boat_size and j < 9 and col[j + 1] != 'X' and self.adjacent_horizontal_values(j, i) in adjacent_cases:
+									actions.append((boat_size, start[0], start[1], "v"))
+									x_count = 0
+									empty_count = 0
+									break
+								elif x_count > boat_size:
+									x_count = 0
+									empty_count = 0
+									break
+							if x_count < boat_size and empty_count + x_count == boat_size and col_vals[i] + x_count >= boat_size and self.adjacent_horizontal_values(j, i) in adjacent_cases:
+								actions.append((boat_size, start[0], start[1], "v"))
 	
 		print(sorted(actions, key=self.sort_aux))
 		print(num_boats)
