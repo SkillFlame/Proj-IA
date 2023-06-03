@@ -302,7 +302,7 @@ class Board:
 				elif self.board[i][j] == 'M':
 					hor_vals = self.adjacent_horizontal_values(i, j)
 					ver_vals = self.adjacent_vertical_values(i, j)
-					if ver_vals == (None, None) or ver_vals == ('w', 'w') or ver_vals == ('W', 'w') or ver_vals == ('W', 'W'):
+					if (ver_vals == (None, None) or ver_vals == ('w', 'w') or ver_vals == ('W', 'w') or ver_vals == ('W', 'W')) and i < 9:
 						if i == 1:
 							self.set_value(i - 1, j, 'X')
 						elif self.get_value(i - 1, j) != 'w':
@@ -312,7 +312,7 @@ class Board:
 						elif self.get_value(i + 1, j) != 'w':
 							self.set_value(i + 1, j, 'X')
 			
-					if hor_vals == (None, None) or hor_vals == ('w', 'w') or hor_vals == ('W', 'w') or hor_vals == ('W', 'W'):
+					if (hor_vals == (None, None) or hor_vals == ('w', 'w') or hor_vals == ('W', 'w') or hor_vals == ('W', 'W')) and j < 9:
 						if j == 1:
 							self.set_value(i, j - 1, 'X')
 						elif self.get_value(i, j - 1) != 'w':
@@ -427,6 +427,10 @@ class Board:
 				elif row[j] == ' ' and boat_count != 0:
 					num_boats[boat_count] -= 1
 					boat_count = 0
+				if j == 9 and boat_count != 0:
+					if boat_count >= 1:
+						num_boats[boat_count] -= 1
+					boat_count = 0
 			if boat_count >= 1:
 				num_boats[boat_count] -= 1
 		
@@ -442,6 +446,10 @@ class Board:
 				elif col[j] == '?':
 					boat_count = 0
 				elif col[j] == ' ' and boat_count != 0:
+					if boat_count > 1:
+						num_boats[boat_count] -= 1
+					boat_count = 0
+				if j == 9 and boat_count != 0:
 					if boat_count > 1:
 						num_boats[boat_count] -= 1
 					boat_count = 0
