@@ -149,7 +149,9 @@ class Board:
 	def fill_the_board(self):
 		self.put_line_waters()
 		self.put_water_around_boat()
+		self.print_board()
 		self.put_possible_parts()
+		self.print_board()
 		self.put_water_around_boat()
 		self.fill_occupied_rows()
 		self.complete_possible_boats()
@@ -302,25 +304,25 @@ class Board:
 				elif self.board[i][j] == 'M':
 					hor_vals = self.adjacent_horizontal_values(i, j)
 					ver_vals = self.adjacent_vertical_values(i, j)
-					if (ver_vals == (None, None) or ver_vals == ('w', 'w') or ver_vals == ('W', 'w') or ver_vals == ('W', 'W')) and i < 9:
-						if i == 1:
-							self.set_value(i - 1, j, 'X')
-						elif self.get_value(i - 1, j) != 'w':
-							self.set_value(i - 1, j, 'X')
-						if i == self.size - 2:
-							self.set_value(i + 1, j, 'X')
-						elif self.get_value(i + 1, j) != 'w':
-							self.set_value(i + 1, j, 'X')
-			
-					if (hor_vals == (None, None) or hor_vals == ('w', 'w') or hor_vals == ('W', 'w') or hor_vals == ('W', 'W')) and j < 9:
-						if j == 1:
-							self.set_value(i, j - 1, 'X')
-						elif self.get_value(i, j - 1) != 'w':
-							self.set_value(i, j - 1, 'X')
-						if j == self.size - 2:
-							self.set_value(i, j + 1, 'X')
-						elif self.get_value(i, j + 1) != 'w':
-							self.set_value(i, j + 1, 'X')
+					#if (ver_vals == (None, None) or ver_vals == ('w', 'w') or ver_vals == ('W', 'w') or ver_vals == ('W', 'W')) and i < 9:
+					#	if i == 1:
+					#		self.set_value(i - 1, j, 'X')
+					#	elif self.get_value(i - 1, j) != 'w':
+					#		self.set_value(i - 1, j, 'X')
+					#	if i == self.size - 2:
+					#		self.set_value(i + 1, j, 'X')
+					#	elif self.get_value(i + 1, j) != 'w':
+					#		self.set_value(i + 1, j, 'X')
+			#
+					#if (hor_vals == (None, None) or hor_vals == ('w', 'w') or hor_vals == ('W', 'w') or hor_vals == ('W', 'W')) and j < 9:
+					#	if j == 1:
+					#		self.set_value(i, j - 1, 'X')
+					#	elif self.get_value(i, j - 1) != 'w':
+					#		self.set_value(i, j - 1, 'X')
+					#	if j == self.size - 2:
+					#		self.set_value(i, j + 1, 'X')
+					#	elif self.get_value(i, j + 1) != 'w':
+					#		self.set_value(i, j + 1, 'X')
 					self.set_value(i, j, 'X')
 						
 				elif self.board[i][j] == 'B':
