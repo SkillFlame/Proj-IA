@@ -470,7 +470,7 @@ class Board:
 			row = self.board[i]
 			if(row_vals[i] + np.count_nonzero(row == 'X') >= boat_size):
 				for w in range(self.size):
-					if row[w] == 'X' or row[w] == '?':
+					if (row[w] == 'X' or row[w] == '?') and self.get_value(i, w-1) != 'X':
 						start = [i, w]
 						x_count = 0
 						empty_count = 0
@@ -505,7 +505,7 @@ class Board:
 				col = self.board[:, i]
 				if(col_vals[i] + np.count_nonzero(col == 'X') >= boat_size):
 					for w in range(self.size):
-						if col[w] == 'X' or col[w] == '?':
+						if (col[w] == 'X' or col[w] == '?') and self.get_value(w-1, i) != 'X':
 							start = [w, i]
 							x_count = 0
 							empty_count = 0
@@ -538,6 +538,7 @@ class Board:
 		print(sorted(actions, key=self.sort_aux))
 		print(num_boats)
 		self.print_board()
+		time.sleep(1)
 		return sorted(actions, key=self.sort_aux)
 
 	def sort_aux(self, list):
