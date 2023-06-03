@@ -409,9 +409,9 @@ class Board:
 
 	def get_actions(self):
 		num_boats = [0, 4, 3, 2, 1] #number_boats[boat_size]
-		row_vals = self.copyrow#cp.deepcopy(self.rowvals)
-		col_vals = self.copycol#cp.deepcopy(self.colvals)
-
+		row_vals = cp.deepcopy(self.rowvals)
+		col_vals = cp.deepcopy(self.colvals)
+		adjacent_cases = [(None, None), ("?", None), (None, "?"), ("?", "?")]
 
 		for i in range(self.size):
 			row = self.board[i]
@@ -420,7 +420,7 @@ class Board:
 				if row[j] == 'X':
 					row_vals[i] -= 1
 
-				if row[j] == 'X' and self.adjacent_vertical_values(i, j) == (None, None):
+				if row[j] == 'X' and self.adjacent_vertical_values(i, j) in adjacent_cases:
 					boat_count += 1
 				elif row[j] == '?':
 					boat_count = 0
@@ -437,7 +437,7 @@ class Board:
 				if col[j] == 'X':
 					col_vals[i] -= 1
 				
-				if col[j] == 'X' and self.adjacent_horizontal_values(j, i) == (None, None):
+				if col[j] == 'X' and self.adjacent_horizontal_values(j, i) in adjacent_cases:
 					boat_count += 1	
 				elif col[j] == '?':
 					boat_count = 0
@@ -445,81 +445,88 @@ class Board:
 					if boat_count > 1:
 						num_boats[boat_count] -= 1
 					boat_count = 0
-		
-		actions = []
+		print(row_vals)
+		print(col_vals)
 		boat_size = 4
 		while boat_size > 0:
 			if num_boats[boat_size] > 0:
-				for i in range(self.size):
-					row = self.board[i]
-					if(row_vals[i] + np.count_nonzero(row == 'X') >= boat_size):
+				break
+			else:
+				boat_size -= 1
+
+		
+		actions = []
+		for i in range(self.size):
+			row = self.board[i]
+			if(row_vals[i] + np.count_nonzero(row == 'X') >= boat_size):
+				x_count = 0
+				empty_count = 0
+				start = []
+				for j in range(self.size):
+					if row[j] == 'X' and self.adjacent_vertical_values(i, j) in adjacent_cases:
+						if x_count == 0 and empty_count == 0:
+							start = [i, j]
+						x_count += 1
+					elif row[j] == '?' and self.adjacent_vertical_values(i, j) in adjacent_cases:
+						if x_count == 0 and empty_count == 0:
+							start = [i, j]
+						empty_count += 1
+					elif row[j] == ' ':
+						if x_count < boat_size and empty_count + x_count >= boat_size and row_vals[i] + x_count >= boat_size and self.adjacent_vertical_values(i, j) in adjacent_cases:
+							offset = (empty_count + x_count) - boat_size
+							if empty_count - offset <= row_vals[i]:
+								actions.append((boat_size, start[0], start[1] + offset, "h"))
 						x_count = 0
 						empty_count = 0
-						start = []
-						for j in range(self.size):
-							if row[j] == 'X' and self.adjacent_vertical_values(i, j) == (None, None):
-								if x_count == 0 and empty_count == 0:
-									start = [i, j]
-								x_count += 1
-							elif row[j] == '?' and self.adjacent_vertical_values(i, j) == (None, None):
-								if x_count == 0 and empty_count == 0:
-									start = [i, j]
-								empty_count += 1
-							elif row[j] == ' ':
-								if x_count < boat_size and empty_count + x_count >= boat_size and self.adjacent_vertical_values(i, j) == (None, None):
-									offset = (empty_count + x_count) - boat_size
-									if empty_count - offset <= row_vals[i]:
-										actions.append((boat_size, start[0], start[1] + offset, "h"))
-								x_count = 0
-								empty_count = 0
 
-							if x_count < boat_size and empty_count + x_count == boat_size and j < 9 and row[j + 1] != 'X' and self.adjacent_vertical_values(i, j) == (None, None):
-								actions.append((boat_size, start[0], start[1], "h"))
-								x_count = 0
-								empty_count = 0
-							elif x_count > boat_size:
-								x_count = 0
-								empty_count = 0
-							
-						if x_count < boat_size and empty_count + x_count == boat_size and self.adjacent_vertical_values(i, j) == (None, None):	
-							actions.append((boat_size, start[0], start[1], "h"))
-				
-				for i in range(self.size):
-					col = self.board[:, i]
-					if(col_vals[i] + np.count_nonzero(col == 'X') >= boat_size):
+					if x_count < boat_size and empty_count + x_count == boat_size and row_vals[i] + x_count >= boat_size and j < 9 and row[j + 1] != 'X' and self.adjacent_vertical_values(i, j) in adjacent_cases:
+						actions.append((boat_size, start[0], start[1], "h"))
 						x_count = 0
 						empty_count = 0
-						start = []
-						for j in range(self.size):
-
-							if col[j] == 'X' and self.adjacent_horizontal_values(j, i) == (None, None):
-								if x_count == 0 and empty_count == 0:
-									start = [j, i]
-								x_count += 1
-							elif col[j] == '?' and self.adjacent_horizontal_values(j, i) == (None, None):
-								if x_count == 0 and empty_count == 0:
-									start = [j, i]
-								empty_count += 1
-							elif col[j] == ' ':
-								if x_count < boat_size and empty_count + x_count >= boat_size and self.adjacent_horizontal_values(j, i) == (None, None):
-									offset = (empty_count + x_count) - boat_size
-									if empty_count - offset <= col_vals[i]:
-										actions.append((boat_size, start[0] + offset, start[1], "v"))
-								x_count = 0
-								empty_count = 0
-							
-							if x_count < boat_size and empty_count + x_count == boat_size and j < 9 and col[j + 1] != 'X' and self.adjacent_horizontal_values(j, i) == (None, None):
-								actions.append((boat_size, start[0], start[1], "v"))
-								x_count = 0
-								empty_count = 0
-							elif x_count > boat_size:
-								x_count = 0
-								empty_count = 0
+					elif x_count > boat_size:
+						x_count = 0
+						empty_count = 0
+					
+				if x_count < boat_size and empty_count + x_count == boat_size and row_vals[i] + x_count >= boat_size and self.adjacent_vertical_values(i, j) in adjacent_cases:	
+					actions.append((boat_size, start[0], start[1], "h"))
+		if boat_size > 1:
+			for i in range(self.size):
+				col = self.board[:, i]
+				if(col_vals[i] + np.count_nonzero(col == 'X') >= boat_size):
+					x_count = 0
+					empty_count = 0
+					start = []
+					for j in range(self.size):
+						if col[j] == 'X' and self.adjacent_horizontal_values(j, i) in adjacent_cases:
+							if x_count == 0 and empty_count == 0:
+								start = [j, i]
+							x_count += 1
+						elif col[j] == '?' and self.adjacent_horizontal_values(j, i) in adjacent_cases:
+							if x_count == 0 and empty_count == 0:
+								start = [j, i]
+							empty_count += 1
+						elif col[j] == ' ':
+							if x_count < boat_size and empty_count + x_count >= boat_size and col_vals[i] + x_count >= boat_size and self.adjacent_horizontal_values(j, i) in adjacent_cases:
+								offset = (empty_count + x_count) - boat_size
+								if empty_count - offset <= col_vals[i]:
+									actions.append((boat_size, start[0] + offset, start[1], "v"))
+							x_count = 0
+							empty_count = 0
 						
-						if x_count < boat_size and empty_count + x_count == boat_size and self.adjacent_horizontal_values(j, i) == (None, None):
+						if x_count < boat_size and empty_count + x_count == boat_size and col_vals[i] + x_count >= boat_size and j < 9 and col[j + 1] != 'X' and self.adjacent_horizontal_values(j, i) in adjacent_cases:
 							actions.append((boat_size, start[0], start[1], "v"))
-			boat_size -= 1
-		#print(sorted(actions, key=self.sort_aux))
+							x_count = 0
+							empty_count = 0
+						elif x_count > boat_size:
+							x_count = 0
+							empty_count = 0
+					
+					if x_count < boat_size and empty_count + x_count == boat_size and col_vals[i] + x_count >= boat_size and self.adjacent_horizontal_values(j, i) in adjacent_cases:
+						actions.append((boat_size, start[0], start[1], "v"))
+	
+		print(sorted(actions, key=self.sort_aux))
+		print(num_boats)
+		self.print_board()
 		return sorted(actions, key=self.sort_aux)
 
 	def sort_aux(self, list):
@@ -649,7 +656,7 @@ class Board:
 				if self.get_value(row_val, i) == '?':
 					self.set_value(row_val, i, 'X')
 				i += 1
-		self.put_water_around_boat()
+		self.put_water_around_search()
 		self.fill_with_search() # novo barco posto, se preencher linha/coluna chamar isto
 	
 	def print_pretty_board(self):
@@ -705,7 +712,6 @@ class Bimaru(Problem):
 	def is_goal(self, board):
 		num_boats = [0, 4, 3, 2, 1] #boat size : number boats
 	
-
 		#print(np.count_nonzero(board.board == 'X'))
 		if np.count_nonzero(board.board == 'X') != 20:
 			return False
