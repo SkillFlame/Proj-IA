@@ -149,9 +149,7 @@ class Board:
 	def fill_the_board(self):
 		self.put_line_waters()
 		self.put_water_around_boat()
-		self.print_board()
 		self.put_possible_parts()
-		self.print_board()
 		self.put_water_around_boat()
 		self.fill_occupied_rows()
 		self.complete_possible_boats()
@@ -409,6 +407,13 @@ class Board:
 			#	self.board[:, j] == np.where(self.board[:, j] == ' ', 'w', self.board[:, j])
 	
 
+	def check_for_bigger_boat(self, boat_size, boat_list):
+		for i in range(boat_size + 1, len(boat_list)):
+			print(len(boat_list))
+			if boat_list[i] > 0:
+				return True
+		return False
+
 	def get_actions(self):
 		num_boats = [0, 4, 3, 2, 1] #number_boats[boat_size]
 		row_vals = cp.deepcopy(self.rowvals)
@@ -425,6 +430,9 @@ class Board:
 				if row[j] == 'X' and self.adjacent_vertical_values(i, j) in adjacent_cases:
 					boat_count += 1
 				elif row[j] == '?':
+					if boat_count == 4 or not self.check_for_bigger_boat(boat_count, num_boats):
+						print("cona")
+						num_boats[boat_count] -= 1
 					boat_count = 0
 				elif row[j] == ' ' and boat_count != 0:
 					num_boats[boat_count] -= 1
@@ -446,6 +454,8 @@ class Board:
 				if col[j] == 'X' and self.adjacent_horizontal_values(j, i) in adjacent_cases:
 					boat_count += 1	
 				elif col[j] == '?':
+					if boat_count == 4 or not self.check_for_bigger_boat(boat_count, num_boats):
+						num_boats[boat_count] -= 1
 					boat_count = 0
 				elif col[j] == ' ' and boat_count != 0:
 					if boat_count > 1:
@@ -455,8 +465,6 @@ class Board:
 					if boat_count > 1:
 						num_boats[boat_count] -= 1
 					boat_count = 0
-		print(row_vals)
-		print(col_vals)
 		boat_size = 4
 		while boat_size > 0:
 			if num_boats[boat_size] > 0:
@@ -534,11 +542,11 @@ class Board:
 									break
 							if x_count < boat_size and empty_count + x_count == boat_size and col_vals[i] + x_count >= boat_size and self.adjacent_horizontal_values(j, i) in adjacent_cases:
 								actions.append((boat_size, start[0], start[1], "v"))
-	
-		print(sorted(actions, key=self.sort_aux))
-		print(num_boats)
-		self.print_board()
-		time.sleep(1)
+		if boat_size == 3:
+			print(sorted(actions, key=self.sort_aux))
+			print(num_boats)
+			self.print_board()
+			time.sleep(1)
 		return sorted(actions, key=self.sort_aux)
 
 	def sort_aux(self, list):
