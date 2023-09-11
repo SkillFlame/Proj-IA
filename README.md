@@ -1,4 +1,4 @@
-<a name="br1"></a>Inteligência Artiﬁcial 2022/23
+<a name="br1"></a>Inteligência Artiﬁcial 2022/23 
 
 Projeto: Bimaru
 
